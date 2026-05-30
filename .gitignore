@@ -1,0 +1,15 @@
+.venv/
+.idea/
+__pycache__/
+*.pyc
+
+data/input_video/
+data/audio/
+data/frames/
+
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+.DS_Store
