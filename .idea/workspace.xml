@@ -5,15 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6927b1a5-d19d-4e34-8506-4d7312989f78" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/ZXCursovaya.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/PZ1_counter_final.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/PZ2_video_to_frames.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/PZ3_ocr_from_frames.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/pz1_opencv/counter_number_ocr/counter_number_results.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/results/pz1_opencv/counter_number_ocr/counter_number_results.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/pz1_opencv/counter_number_ocr/~$counter_number_results.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/pz1_opencv/pz1_opencv_results.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/results/pz1_opencv/pz1_opencv_results.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/pz1_opencv/~$pz1_opencv_results.xlsx" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,9 +29,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 5
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
   <component name="ProjectId" id="3EPZFZTZgmx6hbfiYq4M80J1QJE" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -44,8 +43,10 @@
     "Python.PZ1.executor": "Run",
     "Python.PZ1_counter_final.executor": "Run",
     "Python.PZ1_meter_recognition.executor": "Run",
+    "Python.PZ2_video_to_frames.executor": "Run",
+    "Python.PZ3_ocr_from_frames.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master"
+    "git-widget-placeholder": "main"
   }
 }]]></component>
   <component name="SharedIndexes">

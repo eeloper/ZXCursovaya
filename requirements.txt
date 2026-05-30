@@ -4,3 +4,5 @@ pandas
 openpyxl
 matplotlib
 easyocr
+yt-dlp
+requests

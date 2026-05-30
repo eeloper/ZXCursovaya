@@ -1,0 +1,141 @@
+{
+    "report_type": "FRAME_OCR_REPORT",
+    "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+    "area_mode": "bottom",
+    "frames_count": 8,
+    "frames_with_text": 8,
+    "unique_texts_count": 5,
+    "segments_count": 1,
+    "unique_texts": [
+        "aemop сценарця aemop сценарuя Александра Аверьянова Александра Аверьянова режuссёр-посmaновщuк режuссёр-посmaновщuк Александра Аверьянова Александра Аверьянова художнuкu-пoсmmaноeщuкu художнuкu-пocmmaнoeщuкu Апексантnа Аверьянова Апексанпоа Авепьанова",
+        "Александра Аверьянова Александра Аверьянова режuссёр-посmaновщuк режuссёр-посmaновщuк Александра Аверьянова Александра Аверьянова художнuкu-пocmmaнoeщuкu художнuкu-пocmmaнoeщuкu Александра Аверьянова Александра Аверьянова Елена Фирсова Елена Фирсова",
+        "Александра Аверьянова Александра Аверьянова художнuкu-пocmmaнoeщuкu художнuкu-пocmmaнoeщuкu Александра Аверьянова Александра Аверьянова Елена Фирсова Елена Фирсова композumоры композumоры Сергей Васильев Сергей Васильев",
+        "художнuкu-пocmmaновщuкu художнuкu-пocmmaноeщuкu Александра Аверьянова Александра Аверьянова Елена Фирсова Елена Фирсова композumоры композumоры Сергей Васильев Сергей Васильев Дмитрий Бюргановский Дмитрий Бюргановский Марина Панпа Пацта Марина",
+        "Елена Фирсова Елена Фирсова композumоры композumоры Сергей Васильев Сергей Васильев Дмитрий Бюргановский Дмитрий Бюргановский Марина Ланда Марина Ланда звукорежuссёры звукорежuссёры гою 1г а ш"
+    ],
+    "segments": [
+        {
+            "segment_id": 1,
+            "start_time_seconds": 10.01,
+            "end_time_seconds": 17.017,
+            "start_time": "00:00:10",
+            "end_time": "00:00:17",
+            "time_interval": "00:00:10 - 00:00:17",
+            "start_frame": 10,
+            "end_frame": 17,
+            "final_text": "aemop сценарця aemop сценарuя Александра Аверьянова Александра Аверьянова режuссёр-посmaновщuк режuссёр-посmaновщuк Александра Аверьянова Александра Аверьянова художнuкu-пoсmmaноeщuкu художнuкu-пocmmaнoeщuкu Апексантnа Аверьянова Апексанпоа Авепьанова",
+            "frames_in_segment": 8,
+            "variants_count": 8,
+            "text_variants": "aemop сценарця aemop сценарuя Александра Аверьянова Александра Аверьянова режuссёр-посmaновщuк режuссёр-посmaновщuк Александра Аверьянова Александра Аверьянова художнuкu-пoсmmaноeщuкu художнuкu-пocmmaнoeщuкu Апексантnа Аверьянова Апексанпоа Авепьанова | Александра Аверьянова Александра Аверьянова режuссёр-посmaновщuк режuссёр-посmaновщuк Александра Аверьянова Александра Аверьянова художнuкu-пocmmaнoeщuкu художнuкu-пocmmaнoeщuкu Александра Аверьянова Александра Аверьянова Елена Фирсова Елена Фирсова | режuссёр-посmaновщuк режuссёр-посmaноещuк Александра Аверьянова Александра Аверьянова художнuкu-пoсmmaнощuкu Александра Аверьянова Александра Аверьянова Елена Фирсова Елена Фирсова h3' T91ы. | Александра Аверьянова Александра Аверьянова художнuкu-пocmmaнoeщuкu художнuкu-пocmmaнoeщuкu Александра Аверьянова Александра Аверьянова Елена Фирсова Елена Фирсова композumоры композumоры Сергей Васильев Сергей Васильев | художнuкu-пocmmaновщuкu художнuкu-пocmmaноeщuкu Александра Аверьянова Александра Аверьянова Елена Фирсова Елена Фирсова композumоры композumоры Сергей Васильев Сергей Васильев Дмитрий Бюргановский Дмитрий Бюргановский Марина Панпа Пацта Марина",
+            "example_frame": "downloaded_video_20260530_042923_frame_00010_time_00010010ms.jpg",
+            "annotated_frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\recognized_frames\\downloaded_video_20260530_042923_frame_00010_time_00010010ms_ocr.png"
+        }
+    ],
+    "raw_frames": [
+        {
+            "frame_file": "downloaded_video_20260530_042923_frame_00010_time_00010010ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00010_time_00010010ms.jpg",
+            "frame_number": 10,
+            "time_seconds": 10.01,
+            "time_formatted": "00:00:10",
+            "area_mode": "bottom",
+            "ocr_area_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\ocr_areas\\downloaded_video_20260530_042923_frame_00010_time_00010010ms_area.png",
+            "recognized_text": "aemop сценарця aemop сценарuя Александра Аверьянова Александра Аверьянова режuссёр-посmaновщuк режuссёр-посmaновщuк Александра Аверьянова Александра Аверьянова художнuкu-пoсmmaноeщuкu художнuкu-пocmmaнoeщuкu Апексантnа Аверьянова Апексанпоа Авепьанова",
+            "normalized_text": "аемор сценарця аемор сценарuя александра аверьянова александра аверьянова режuссер посмановщuк режuссер посмановщuк александра аверьянова александра аверьянова художнuкu посмманоещuкu художнuкu посмманоещuкu апексантnа аверьянова апексанпоа авепьанова",
+            "average_confidence": 0.736,
+            "annotated_frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\recognized_frames\\downloaded_video_20260530_042923_frame_00010_time_00010010ms_ocr.png"
+        },
+        {
+            "frame_file": "downloaded_video_20260530_042923_frame_00011_time_00011011ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00011_time_00011011ms.jpg",
+            "frame_number": 11,
+            "time_seconds": 11.011,
+            "time_formatted": "00:00:11",
+            "area_mode": "bottom",
+            "ocr_area_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\ocr_areas\\downloaded_video_20260530_042923_frame_00011_time_00011011ms_area.png",
+            "recognized_text": "Александра Аверьянова Александра Аверьянова режuссёр-посmaновщuк режuссёр-посmaновщuк Александра Аверьянова Александра Аверьянова художнuкu-пocmmaнoeщuкu художнuкu-пocmmaнoeщuкu Александра Аверьянова Александра Аверьянова Елена Фирсова Елена Фирсова",
+            "normalized_text": "александра аверьянова александра аверьянова режuссер посмановщuк режuссер посмановщuк александра аверьянова александра аверьянова художнuкu посмманоещuкu художнuкu посмманоещuкu александра аверьянова александра аверьянова елена фирсова елена фирсова",
+            "average_confidence": 0.861,
+            "annotated_frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\recognized_frames\\downloaded_video_20260530_042923_frame_00011_time_00011011ms_ocr.png"
+        },
+        {
+            "frame_file": "downloaded_video_20260530_042923_frame_00012_time_00012012ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00012_time_00012012ms.jpg",
+            "frame_number": 12,
+            "time_seconds": 12.012,
+            "time_formatted": "00:00:12",
+            "area_mode": "bottom",
+            "ocr_area_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\ocr_areas\\downloaded_video_20260530_042923_frame_00012_time_00012012ms_area.png",
+            "recognized_text": "режuссёр-посmaновщuк режuссёр-посmaноещuк Александра Аверьянова Александра Аверьянова художнuкu-пoсmmaнощuкu Александра Аверьянова Александра Аверьянова Елена Фирсова Елена Фирсова h3' T91ы.",
+            "normalized_text": "режuссер посмановщuк режuссер посманоещuк александра аверьянова александра аверьянова художнuкu посмманощuкu александра аверьянова александра аверьянова елена фирсова елена фирсова н3 т91ы",
+            "average_confidence": 0.692,
+            "annotated_frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\recognized_frames\\downloaded_video_20260530_042923_frame_00012_time_00012012ms_ocr.png"
+        },
+        {
+            "frame_file": "downloaded_video_20260530_042923_frame_00013_time_00013013ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00013_time_00013013ms.jpg",
+            "frame_number": 13,
+            "time_seconds": 13.013,
+            "time_formatted": "00:00:13",
+            "area_mode": "bottom",
+            "ocr_area_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\ocr_areas\\downloaded_video_20260530_042923_frame_00013_time_00013013ms_area.png",
+            "recognized_text": "Александра Аверьянова Александра Аверьянова художнuкu-пocmmaнoeщuкu художнuкu-пocmmaнoeщuкu Александра Аверьянова Александра Аверьянова Елена Фирсова Елена Фирсова композumоры композumоры Сергей Васильев Сергей Васильев",
+            "normalized_text": "александра аверьянова александра аверьянова художнuкu посмманоещuкu художнuкu посмманоещuкu александра аверьянова александра аверьянова елена фирсова елена фирсова композuморы композuморы сергей васильев сергей васильев",
+            "average_confidence": 0.925,
+            "annotated_frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\recognized_frames\\downloaded_video_20260530_042923_frame_00013_time_00013013ms_ocr.png"
+        },
+        {
+            "frame_file": "downloaded_video_20260530_042923_frame_00014_time_00014014ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00014_time_00014014ms.jpg",
+            "frame_number": 14,
+            "time_seconds": 14.014,
+            "time_formatted": "00:00:14",
+            "area_mode": "bottom",
+            "ocr_area_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\ocr_areas\\downloaded_video_20260530_042923_frame_00014_time_00014014ms_area.png",
+            "recognized_text": "художнuкu-пocmmaновщuкu художнuкu-пocmmaноeщuкu Александра Аверьянова Александра Аверьянова Елена Фирсова Елена Фирсова композumоры композumоры Сергей Васильев Сергей Васильев Дмитрий Бюргановский Дмитрий Бюргановский Марина Панпа Пацта Марина",
+            "normalized_text": "художнuкu посммановщuкu художнuкu посмманоещuкu александра аверьянова александра аверьянова елена фирсова елена фирсова композuморы композuморы сергей васильев сергей васильев дмитрий бюргановский дмитрий бюргановский марина панпа пацта марина",
+            "average_confidence": 0.815,
+            "annotated_frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\recognized_frames\\downloaded_video_20260530_042923_frame_00014_time_00014014ms_ocr.png"
+        },
+        {
+            "frame_file": "downloaded_video_20260530_042923_frame_00015_time_00015015ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00015_time_00015015ms.jpg",
+            "frame_number": 15,
+            "time_seconds": 15.015,
+            "time_formatted": "00:00:15",
+            "area_mode": "bottom",
+            "ocr_area_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\ocr_areas\\downloaded_video_20260530_042923_frame_00015_time_00015015ms_area.png",
+            "recognized_text": "мучччч AJ5 10 1d0011 2т Александра Аверьянова Александра Аверьянова Елена Фирсова Елена Фирсова композumоры композumоры Сергей Васильев Сергей Васильев Дмитрий Бюргановский Дмитрий Бюргановский Марина Ланда Марина Ланда",
+            "normalized_text": "мучччч аj5 10 1d0011 2т александра аверьянова александра аверьянова елена фирсова елена фирсова композuморы композuморы сергей васильев сергей васильев дмитрий бюргановский дмитрий бюргановский марина ланда марина ланда",
+            "average_confidence": 0.72,
+            "annotated_frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\recognized_frames\\downloaded_video_20260530_042923_frame_00015_time_00015015ms_ocr.png"
+        },
+        {
+            "frame_file": "downloaded_video_20260530_042923_frame_00016_time_00016016ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00016_time_00016016ms.jpg",
+            "frame_number": 16,
+            "time_seconds": 16.016,
+            "time_formatted": "00:00:16",
+            "area_mode": "bottom",
+            "ocr_area_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\ocr_areas\\downloaded_video_20260530_042923_frame_00016_time_00016016ms_area.png",
+            "recognized_text": "Елена Фирсова Елена Фирсова композumоры композumоры Сергей Васильев Сергей Васильев Дмитрий Бюргановский Дмитрий Бюргановский Марина Ланда Марина Ланда звукорежuссёры звукорежuссёры гою 1г а ш",
+            "normalized_text": "елена фирсова елена фирсова композuморы композuморы сергей васильев сергей васильев дмитрий бюргановский дмитрий бюргановский марина ланда марина ланда звукорежuссеры звукорежuссеры гою 1г а ш",
+            "average_confidence": 0.765,
+            "annotated_frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\recognized_frames\\downloaded_video_20260530_042923_frame_00016_time_00016016ms_ocr.png"
+        },
+        {
+            "frame_file": "downloaded_video_20260530_042923_frame_00017_time_00017017ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00017_time_00017017ms.jpg",
+            "frame_number": 17,
+            "time_seconds": 17.017,
+            "time_formatted": "00:00:17",
+            "area_mode": "bottom",
+            "ocr_area_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\ocr_areas\\downloaded_video_20260530_042923_frame_00017_time_00017017ms_area.png",
+            "recognized_text": "композumоры композumоры Сергей Васильев Сергей Васильев Дмитрий Бюргановский Дмитрий Бюргановский Марина Ланда Марина Ланда звукорежuссёры звукорежuссёры Игорь Игорь Яковель Яковель Денис Душин Денис Душин",
+            "normalized_text": "композuморы композuморы сергей васильев сергей васильев дмитрий бюргановский дмитрий бюргановский марина ланда марина ланда звукорежuссеры звукорежuссеры игорь игорь яковель яковель денис душин денис душин",
+            "average_confidence": 0.914,
+            "annotated_frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz3_ocr\\ocr_run_20260530_050406\\recognized_frames\\downloaded_video_20260530_042923_frame_00017_time_00017017ms_ocr.png"
+        }
+    ],
+    "analysis_timestamp": "2026-05-30T05:04:55.587410"
+}

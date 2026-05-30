@@ -1,0 +1,1374 @@
+{
+    "report_type": "VIDEO_FRAME_EXTRACTION_REPORT",
+    "source_mode": "url_download",
+    "extract_fps": 1.0,
+    "videos_count": 1,
+    "total_saved_frames": 135,
+    "videos": [
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "video_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\VIDEO_FOLDER\\downloaded_video_20260530_042923.mp4",
+            "source_fps": 29.97,
+            "frame_count": 4040,
+            "duration_seconds": 134.801,
+            "duration_formatted": "00:02:14",
+            "extract_fps": 1.0,
+            "saved_frames": 135,
+            "frames_output_dir": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "analysis_timestamp": "2026-05-30T04:29:36.961147"
+        }
+    ],
+    "frames": [
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00000_time_00000000ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00000_time_00000000ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 0,
+            "saved_frame_number": 0,
+            "time_seconds": 0.0,
+            "time_formatted": "00:00:00"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00001_time_00001001ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00001_time_00001001ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 30,
+            "saved_frame_number": 1,
+            "time_seconds": 1.001,
+            "time_formatted": "00:00:01"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00002_time_00002002ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00002_time_00002002ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 60,
+            "saved_frame_number": 2,
+            "time_seconds": 2.002,
+            "time_formatted": "00:00:02"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00003_time_00003003ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00003_time_00003003ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 90,
+            "saved_frame_number": 3,
+            "time_seconds": 3.003,
+            "time_formatted": "00:00:03"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00004_time_00004004ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00004_time_00004004ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 120,
+            "saved_frame_number": 4,
+            "time_seconds": 4.004,
+            "time_formatted": "00:00:04"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00005_time_00005005ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00005_time_00005005ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 150,
+            "saved_frame_number": 5,
+            "time_seconds": 5.005,
+            "time_formatted": "00:00:05"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00006_time_00006006ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00006_time_00006006ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 180,
+            "saved_frame_number": 6,
+            "time_seconds": 6.006,
+            "time_formatted": "00:00:06"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00007_time_00007007ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00007_time_00007007ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 210,
+            "saved_frame_number": 7,
+            "time_seconds": 7.007,
+            "time_formatted": "00:00:07"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00008_time_00008008ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00008_time_00008008ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 240,
+            "saved_frame_number": 8,
+            "time_seconds": 8.008,
+            "time_formatted": "00:00:08"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00009_time_00009009ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00009_time_00009009ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 270,
+            "saved_frame_number": 9,
+            "time_seconds": 9.009,
+            "time_formatted": "00:00:09"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00010_time_00010010ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00010_time_00010010ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 300,
+            "saved_frame_number": 10,
+            "time_seconds": 10.01,
+            "time_formatted": "00:00:10"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00011_time_00011011ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00011_time_00011011ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 330,
+            "saved_frame_number": 11,
+            "time_seconds": 11.011,
+            "time_formatted": "00:00:11"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00012_time_00012012ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00012_time_00012012ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 360,
+            "saved_frame_number": 12,
+            "time_seconds": 12.012,
+            "time_formatted": "00:00:12"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00013_time_00013013ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00013_time_00013013ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 390,
+            "saved_frame_number": 13,
+            "time_seconds": 13.013,
+            "time_formatted": "00:00:13"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00014_time_00014014ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00014_time_00014014ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 420,
+            "saved_frame_number": 14,
+            "time_seconds": 14.014,
+            "time_formatted": "00:00:14"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00015_time_00015015ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00015_time_00015015ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 450,
+            "saved_frame_number": 15,
+            "time_seconds": 15.015,
+            "time_formatted": "00:00:15"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00016_time_00016016ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00016_time_00016016ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 480,
+            "saved_frame_number": 16,
+            "time_seconds": 16.016,
+            "time_formatted": "00:00:16"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00017_time_00017017ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00017_time_00017017ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 510,
+            "saved_frame_number": 17,
+            "time_seconds": 17.017,
+            "time_formatted": "00:00:17"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00018_time_00018018ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00018_time_00018018ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 540,
+            "saved_frame_number": 18,
+            "time_seconds": 18.018,
+            "time_formatted": "00:00:18"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00019_time_00019019ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00019_time_00019019ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 570,
+            "saved_frame_number": 19,
+            "time_seconds": 19.019,
+            "time_formatted": "00:00:19"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00020_time_00020020ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00020_time_00020020ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 600,
+            "saved_frame_number": 20,
+            "time_seconds": 20.02,
+            "time_formatted": "00:00:20"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00021_time_00021021ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00021_time_00021021ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 630,
+            "saved_frame_number": 21,
+            "time_seconds": 21.021,
+            "time_formatted": "00:00:21"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00022_time_00022022ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00022_time_00022022ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 660,
+            "saved_frame_number": 22,
+            "time_seconds": 22.022,
+            "time_formatted": "00:00:22"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00023_time_00023023ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00023_time_00023023ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 690,
+            "saved_frame_number": 23,
+            "time_seconds": 23.023,
+            "time_formatted": "00:00:23"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00024_time_00024024ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00024_time_00024024ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 720,
+            "saved_frame_number": 24,
+            "time_seconds": 24.024,
+            "time_formatted": "00:00:24"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00025_time_00025025ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00025_time_00025025ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 750,
+            "saved_frame_number": 25,
+            "time_seconds": 25.025,
+            "time_formatted": "00:00:25"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00026_time_00026026ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00026_time_00026026ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 780,
+            "saved_frame_number": 26,
+            "time_seconds": 26.026,
+            "time_formatted": "00:00:26"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00027_time_00027027ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00027_time_00027027ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 810,
+            "saved_frame_number": 27,
+            "time_seconds": 27.027,
+            "time_formatted": "00:00:27"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00028_time_00028028ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00028_time_00028028ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 840,
+            "saved_frame_number": 28,
+            "time_seconds": 28.028,
+            "time_formatted": "00:00:28"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00029_time_00029029ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00029_time_00029029ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 870,
+            "saved_frame_number": 29,
+            "time_seconds": 29.029,
+            "time_formatted": "00:00:29"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00030_time_00030030ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00030_time_00030030ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 900,
+            "saved_frame_number": 30,
+            "time_seconds": 30.03,
+            "time_formatted": "00:00:30"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00031_time_00031031ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00031_time_00031031ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 930,
+            "saved_frame_number": 31,
+            "time_seconds": 31.031,
+            "time_formatted": "00:00:31"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00032_time_00032032ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00032_time_00032032ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 960,
+            "saved_frame_number": 32,
+            "time_seconds": 32.032,
+            "time_formatted": "00:00:32"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00033_time_00033033ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00033_time_00033033ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 990,
+            "saved_frame_number": 33,
+            "time_seconds": 33.033,
+            "time_formatted": "00:00:33"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00034_time_00034000ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00034_time_00034000ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1019,
+            "saved_frame_number": 34,
+            "time_seconds": 34.001,
+            "time_formatted": "00:00:34"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00035_time_00035001ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00035_time_00035001ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1049,
+            "saved_frame_number": 35,
+            "time_seconds": 35.002,
+            "time_formatted": "00:00:35"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00036_time_00036002ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00036_time_00036002ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1079,
+            "saved_frame_number": 36,
+            "time_seconds": 36.003,
+            "time_formatted": "00:00:36"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00037_time_00037003ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00037_time_00037003ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1109,
+            "saved_frame_number": 37,
+            "time_seconds": 37.004,
+            "time_formatted": "00:00:37"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00038_time_00038004ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00038_time_00038004ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1139,
+            "saved_frame_number": 38,
+            "time_seconds": 38.005,
+            "time_formatted": "00:00:38"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00039_time_00039005ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00039_time_00039005ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1169,
+            "saved_frame_number": 39,
+            "time_seconds": 39.006,
+            "time_formatted": "00:00:39"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00040_time_00040006ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00040_time_00040006ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1199,
+            "saved_frame_number": 40,
+            "time_seconds": 40.007,
+            "time_formatted": "00:00:40"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00041_time_00041007ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00041_time_00041007ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1229,
+            "saved_frame_number": 41,
+            "time_seconds": 41.008,
+            "time_formatted": "00:00:41"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00042_time_00042008ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00042_time_00042008ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1259,
+            "saved_frame_number": 42,
+            "time_seconds": 42.009,
+            "time_formatted": "00:00:42"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00043_time_00043009ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00043_time_00043009ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1289,
+            "saved_frame_number": 43,
+            "time_seconds": 43.01,
+            "time_formatted": "00:00:43"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00044_time_00044010ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00044_time_00044010ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1319,
+            "saved_frame_number": 44,
+            "time_seconds": 44.011,
+            "time_formatted": "00:00:44"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00045_time_00045011ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00045_time_00045011ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1349,
+            "saved_frame_number": 45,
+            "time_seconds": 45.012,
+            "time_formatted": "00:00:45"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00046_time_00046012ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00046_time_00046012ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1379,
+            "saved_frame_number": 46,
+            "time_seconds": 46.013,
+            "time_formatted": "00:00:46"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00047_time_00047013ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00047_time_00047013ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1409,
+            "saved_frame_number": 47,
+            "time_seconds": 47.014,
+            "time_formatted": "00:00:47"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00048_time_00048014ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00048_time_00048014ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1439,
+            "saved_frame_number": 48,
+            "time_seconds": 48.015,
+            "time_formatted": "00:00:48"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00049_time_00049015ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00049_time_00049015ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1469,
+            "saved_frame_number": 49,
+            "time_seconds": 49.016,
+            "time_formatted": "00:00:49"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00050_time_00050016ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00050_time_00050016ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1499,
+            "saved_frame_number": 50,
+            "time_seconds": 50.017,
+            "time_formatted": "00:00:50"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00051_time_00051017ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00051_time_00051017ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1529,
+            "saved_frame_number": 51,
+            "time_seconds": 51.018,
+            "time_formatted": "00:00:51"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00052_time_00052018ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00052_time_00052018ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1559,
+            "saved_frame_number": 52,
+            "time_seconds": 52.019,
+            "time_formatted": "00:00:52"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00053_time_00053019ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00053_time_00053019ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1589,
+            "saved_frame_number": 53,
+            "time_seconds": 53.02,
+            "time_formatted": "00:00:53"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00054_time_00054020ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00054_time_00054020ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1619,
+            "saved_frame_number": 54,
+            "time_seconds": 54.021,
+            "time_formatted": "00:00:54"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00055_time_00055021ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00055_time_00055021ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1649,
+            "saved_frame_number": 55,
+            "time_seconds": 55.022,
+            "time_formatted": "00:00:55"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00056_time_00056022ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00056_time_00056022ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1679,
+            "saved_frame_number": 56,
+            "time_seconds": 56.023,
+            "time_formatted": "00:00:56"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00057_time_00057023ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00057_time_00057023ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1709,
+            "saved_frame_number": 57,
+            "time_seconds": 57.024,
+            "time_formatted": "00:00:57"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00058_time_00058024ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00058_time_00058024ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1739,
+            "saved_frame_number": 58,
+            "time_seconds": 58.025,
+            "time_formatted": "00:00:58"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00059_time_00059025ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00059_time_00059025ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1769,
+            "saved_frame_number": 59,
+            "time_seconds": 59.026,
+            "time_formatted": "00:00:59"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00060_time_00060026ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00060_time_00060026ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1799,
+            "saved_frame_number": 60,
+            "time_seconds": 60.027,
+            "time_formatted": "00:01:00"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00061_time_00061027ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00061_time_00061027ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1829,
+            "saved_frame_number": 61,
+            "time_seconds": 61.028,
+            "time_formatted": "00:01:01"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00062_time_00062028ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00062_time_00062028ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1859,
+            "saved_frame_number": 62,
+            "time_seconds": 62.029,
+            "time_formatted": "00:01:02"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00063_time_00063029ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00063_time_00063029ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1889,
+            "saved_frame_number": 63,
+            "time_seconds": 63.03,
+            "time_formatted": "00:01:03"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00064_time_00064030ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00064_time_00064030ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1919,
+            "saved_frame_number": 64,
+            "time_seconds": 64.031,
+            "time_formatted": "00:01:04"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00065_time_00065031ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00065_time_00065031ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1949,
+            "saved_frame_number": 65,
+            "time_seconds": 65.032,
+            "time_formatted": "00:01:05"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00066_time_00066032ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00066_time_00066032ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 1979,
+            "saved_frame_number": 66,
+            "time_seconds": 66.033,
+            "time_formatted": "00:01:06"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00067_time_00067000ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00067_time_00067000ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2008,
+            "saved_frame_number": 67,
+            "time_seconds": 67.0,
+            "time_formatted": "00:01:07"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00068_time_00068001ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00068_time_00068001ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2038,
+            "saved_frame_number": 68,
+            "time_seconds": 68.001,
+            "time_formatted": "00:01:08"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00069_time_00069002ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00069_time_00069002ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2068,
+            "saved_frame_number": 69,
+            "time_seconds": 69.002,
+            "time_formatted": "00:01:09"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00070_time_00070003ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00070_time_00070003ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2098,
+            "saved_frame_number": 70,
+            "time_seconds": 70.003,
+            "time_formatted": "00:01:10"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00071_time_00071004ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00071_time_00071004ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2128,
+            "saved_frame_number": 71,
+            "time_seconds": 71.004,
+            "time_formatted": "00:01:11"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00072_time_00072005ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00072_time_00072005ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2158,
+            "saved_frame_number": 72,
+            "time_seconds": 72.005,
+            "time_formatted": "00:01:12"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00073_time_00073006ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00073_time_00073006ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2188,
+            "saved_frame_number": 73,
+            "time_seconds": 73.006,
+            "time_formatted": "00:01:13"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00074_time_00074007ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00074_time_00074007ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2218,
+            "saved_frame_number": 74,
+            "time_seconds": 74.007,
+            "time_formatted": "00:01:14"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00075_time_00075008ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00075_time_00075008ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2248,
+            "saved_frame_number": 75,
+            "time_seconds": 75.008,
+            "time_formatted": "00:01:15"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00076_time_00076009ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00076_time_00076009ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2278,
+            "saved_frame_number": 76,
+            "time_seconds": 76.009,
+            "time_formatted": "00:01:16"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00077_time_00077010ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00077_time_00077010ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2308,
+            "saved_frame_number": 77,
+            "time_seconds": 77.01,
+            "time_formatted": "00:01:17"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00078_time_00078011ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00078_time_00078011ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2338,
+            "saved_frame_number": 78,
+            "time_seconds": 78.011,
+            "time_formatted": "00:01:18"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00079_time_00079012ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00079_time_00079012ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2368,
+            "saved_frame_number": 79,
+            "time_seconds": 79.012,
+            "time_formatted": "00:01:19"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00080_time_00080013ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00080_time_00080013ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2398,
+            "saved_frame_number": 80,
+            "time_seconds": 80.013,
+            "time_formatted": "00:01:20"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00081_time_00081014ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00081_time_00081014ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2428,
+            "saved_frame_number": 81,
+            "time_seconds": 81.014,
+            "time_formatted": "00:01:21"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00082_time_00082015ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00082_time_00082015ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2458,
+            "saved_frame_number": 82,
+            "time_seconds": 82.015,
+            "time_formatted": "00:01:22"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00083_time_00083016ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00083_time_00083016ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2488,
+            "saved_frame_number": 83,
+            "time_seconds": 83.016,
+            "time_formatted": "00:01:23"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00084_time_00084017ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00084_time_00084017ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2518,
+            "saved_frame_number": 84,
+            "time_seconds": 84.017,
+            "time_formatted": "00:01:24"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00085_time_00085018ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00085_time_00085018ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2548,
+            "saved_frame_number": 85,
+            "time_seconds": 85.018,
+            "time_formatted": "00:01:25"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00086_time_00086019ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00086_time_00086019ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2578,
+            "saved_frame_number": 86,
+            "time_seconds": 86.019,
+            "time_formatted": "00:01:26"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00087_time_00087020ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00087_time_00087020ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2608,
+            "saved_frame_number": 87,
+            "time_seconds": 87.02,
+            "time_formatted": "00:01:27"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00088_time_00088021ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00088_time_00088021ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2638,
+            "saved_frame_number": 88,
+            "time_seconds": 88.021,
+            "time_formatted": "00:01:28"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00089_time_00089022ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00089_time_00089022ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2668,
+            "saved_frame_number": 89,
+            "time_seconds": 89.022,
+            "time_formatted": "00:01:29"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00090_time_00090023ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00090_time_00090023ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2698,
+            "saved_frame_number": 90,
+            "time_seconds": 90.023,
+            "time_formatted": "00:01:30"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00091_time_00091024ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00091_time_00091024ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2728,
+            "saved_frame_number": 91,
+            "time_seconds": 91.024,
+            "time_formatted": "00:01:31"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00092_time_00092025ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00092_time_00092025ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2758,
+            "saved_frame_number": 92,
+            "time_seconds": 92.025,
+            "time_formatted": "00:01:32"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00093_time_00093026ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00093_time_00093026ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2788,
+            "saved_frame_number": 93,
+            "time_seconds": 93.026,
+            "time_formatted": "00:01:33"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00094_time_00094027ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00094_time_00094027ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2818,
+            "saved_frame_number": 94,
+            "time_seconds": 94.027,
+            "time_formatted": "00:01:34"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00095_time_00095028ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00095_time_00095028ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2848,
+            "saved_frame_number": 95,
+            "time_seconds": 95.028,
+            "time_formatted": "00:01:35"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00096_time_00096029ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00096_time_00096029ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2878,
+            "saved_frame_number": 96,
+            "time_seconds": 96.029,
+            "time_formatted": "00:01:36"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00097_time_00097030ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00097_time_00097030ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2908,
+            "saved_frame_number": 97,
+            "time_seconds": 97.03,
+            "time_formatted": "00:01:37"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00098_time_00098031ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00098_time_00098031ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2938,
+            "saved_frame_number": 98,
+            "time_seconds": 98.031,
+            "time_formatted": "00:01:38"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00099_time_00099032ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00099_time_00099032ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2968,
+            "saved_frame_number": 99,
+            "time_seconds": 99.032,
+            "time_formatted": "00:01:39"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00100_time_00099999ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00100_time_00099999ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 2997,
+            "saved_frame_number": 100,
+            "time_seconds": 100.0,
+            "time_formatted": "00:01:39"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00101_time_00101000ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00101_time_00101000ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3027,
+            "saved_frame_number": 101,
+            "time_seconds": 101.001,
+            "time_formatted": "00:01:41"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00102_time_00102001ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00102_time_00102001ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3057,
+            "saved_frame_number": 102,
+            "time_seconds": 102.002,
+            "time_formatted": "00:01:42"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00103_time_00103002ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00103_time_00103002ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3087,
+            "saved_frame_number": 103,
+            "time_seconds": 103.003,
+            "time_formatted": "00:01:43"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00104_time_00104003ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00104_time_00104003ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3117,
+            "saved_frame_number": 104,
+            "time_seconds": 104.004,
+            "time_formatted": "00:01:44"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00105_time_00105004ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00105_time_00105004ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3147,
+            "saved_frame_number": 105,
+            "time_seconds": 105.005,
+            "time_formatted": "00:01:45"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00106_time_00106005ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00106_time_00106005ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3177,
+            "saved_frame_number": 106,
+            "time_seconds": 106.006,
+            "time_formatted": "00:01:46"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00107_time_00107006ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00107_time_00107006ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3207,
+            "saved_frame_number": 107,
+            "time_seconds": 107.007,
+            "time_formatted": "00:01:47"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00108_time_00108007ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00108_time_00108007ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3237,
+            "saved_frame_number": 108,
+            "time_seconds": 108.008,
+            "time_formatted": "00:01:48"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00109_time_00109008ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00109_time_00109008ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3267,
+            "saved_frame_number": 109,
+            "time_seconds": 109.009,
+            "time_formatted": "00:01:49"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00110_time_00110009ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00110_time_00110009ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3297,
+            "saved_frame_number": 110,
+            "time_seconds": 110.01,
+            "time_formatted": "00:01:50"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00111_time_00111010ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00111_time_00111010ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3327,
+            "saved_frame_number": 111,
+            "time_seconds": 111.011,
+            "time_formatted": "00:01:51"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00112_time_00112011ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00112_time_00112011ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3357,
+            "saved_frame_number": 112,
+            "time_seconds": 112.012,
+            "time_formatted": "00:01:52"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00113_time_00113012ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00113_time_00113012ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3387,
+            "saved_frame_number": 113,
+            "time_seconds": 113.013,
+            "time_formatted": "00:01:53"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00114_time_00114013ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00114_time_00114013ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3417,
+            "saved_frame_number": 114,
+            "time_seconds": 114.014,
+            "time_formatted": "00:01:54"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00115_time_00115014ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00115_time_00115014ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3447,
+            "saved_frame_number": 115,
+            "time_seconds": 115.015,
+            "time_formatted": "00:01:55"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00116_time_00116015ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00116_time_00116015ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3477,
+            "saved_frame_number": 116,
+            "time_seconds": 116.016,
+            "time_formatted": "00:01:56"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00117_time_00117016ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00117_time_00117016ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3507,
+            "saved_frame_number": 117,
+            "time_seconds": 117.017,
+            "time_formatted": "00:01:57"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00118_time_00118017ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00118_time_00118017ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3537,
+            "saved_frame_number": 118,
+            "time_seconds": 118.018,
+            "time_formatted": "00:01:58"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00119_time_00119018ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00119_time_00119018ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3567,
+            "saved_frame_number": 119,
+            "time_seconds": 119.019,
+            "time_formatted": "00:01:59"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00120_time_00120019ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00120_time_00120019ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3597,
+            "saved_frame_number": 120,
+            "time_seconds": 120.02,
+            "time_formatted": "00:02:00"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00121_time_00121020ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00121_time_00121020ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3627,
+            "saved_frame_number": 121,
+            "time_seconds": 121.021,
+            "time_formatted": "00:02:01"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00122_time_00122021ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00122_time_00122021ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3657,
+            "saved_frame_number": 122,
+            "time_seconds": 122.022,
+            "time_formatted": "00:02:02"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00123_time_00123022ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00123_time_00123022ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3687,
+            "saved_frame_number": 123,
+            "time_seconds": 123.023,
+            "time_formatted": "00:02:03"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00124_time_00124023ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00124_time_00124023ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3717,
+            "saved_frame_number": 124,
+            "time_seconds": 124.024,
+            "time_formatted": "00:02:04"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00125_time_00125024ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00125_time_00125024ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3747,
+            "saved_frame_number": 125,
+            "time_seconds": 125.025,
+            "time_formatted": "00:02:05"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00126_time_00126025ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00126_time_00126025ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3777,
+            "saved_frame_number": 126,
+            "time_seconds": 126.026,
+            "time_formatted": "00:02:06"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00127_time_00127026ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00127_time_00127026ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3807,
+            "saved_frame_number": 127,
+            "time_seconds": 127.027,
+            "time_formatted": "00:02:07"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00128_time_00128027ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00128_time_00128027ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3837,
+            "saved_frame_number": 128,
+            "time_seconds": 128.028,
+            "time_formatted": "00:02:08"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00129_time_00129028ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00129_time_00129028ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3867,
+            "saved_frame_number": 129,
+            "time_seconds": 129.029,
+            "time_formatted": "00:02:09"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00130_time_00130029ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00130_time_00130029ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3897,
+            "saved_frame_number": 130,
+            "time_seconds": 130.03,
+            "time_formatted": "00:02:10"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00131_time_00131030ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00131_time_00131030ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3927,
+            "saved_frame_number": 131,
+            "time_seconds": 131.031,
+            "time_formatted": "00:02:11"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00132_time_00132031ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00132_time_00132031ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3957,
+            "saved_frame_number": 132,
+            "time_seconds": 132.032,
+            "time_formatted": "00:02:12"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00133_time_00133032ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00133_time_00133032ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 3987,
+            "saved_frame_number": 133,
+            "time_seconds": 133.033,
+            "time_formatted": "00:02:13"
+        },
+        {
+            "video_name": "downloaded_video_20260530_042923.mp4",
+            "frame_file": "downloaded_video_20260530_042923_frame_00134_time_00134000ms.jpg",
+            "frame_path": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925\\downloaded_video_20260530_042923_frame_00134_time_00134000ms.jpg",
+            "frames_folder": "C:\\Users\\Asus\\Desktop\\DaTa_analisys\\ZXCursovaya\\results\\pz2_frames\\FRAME_FOLDER\\downloaded_video_20260530_042923_fps_1_0_20260530_042925",
+            "original_frame_number": 4016,
+            "saved_frame_number": 134,
+            "time_seconds": 134.001,
+            "time_formatted": "00:02:14"
+        }
+    ],
+    "analysis_timestamp": "2026-05-30T04:29:37.402845"
+}
