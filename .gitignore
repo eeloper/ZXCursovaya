@@ -49,3 +49,7 @@ results/pz3_ocr/
 
 # PZ4 generated audio/transcripts
 results/pz4_whisper/
+
+results/pz5_yolo/
+
+models/yolov5_weights/*.pt

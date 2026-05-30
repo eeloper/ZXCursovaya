@@ -7,3 +7,17 @@ easyocr
 yt-dlp
 requests
 openai-whisper
+torch
+torchvision
+Pillow
+PyYAML
+tqdm
+torch
+torchvision
+Pillow
+PyYAML
+tqdm
+ipython
+seaborn
+psutil
+thop
