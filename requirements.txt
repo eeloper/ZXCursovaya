@@ -21,3 +21,5 @@ ipython
 seaborn
 psutil
 thop
+google-genai
+ollama
