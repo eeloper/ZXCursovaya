@@ -267,7 +267,7 @@ def choose_images_folder():
 def choose_resnet_model():
     print("\nВыберите модель ResNet:")
     print("1 — ResNet18, быстрее")
-    print("2 — ResNet34, лучше качество, не ResNet50")
+    print("2 — ResNet34, лучше качество")
 
     choice = input("\nВведите 1 или 2 (Enter = ResNet34): ").strip()
 
