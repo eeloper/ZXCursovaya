@@ -13,3 +13,39 @@ data/frames/
 *.mkv
 
 .DS_Store
+
+results/pz2_frames/VIDEO_FOLDER/
+results/pz2_frames/FRAME_FOLDER/
+results/pz2_frames/sample_frames/
+
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Video and audio files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+*.wav
+*.mp3
+*.m4a
+
+# PZ2 heavy files
+results/pz2_frames/VIDEO_FOLDER/
+results/pz2_frames/FRAME_FOLDER/
+results/pz2_frames/sample_frames/
+
+# PZ3 generated OCR results
+results/pz3_ocr/
+
+# PZ4 generated audio/transcripts
+results/pz4_whisper/

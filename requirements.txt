@@ -6,3 +6,4 @@ matplotlib
 easyocr
 yt-dlp
 requests
+openai-whisper
