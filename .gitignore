@@ -53,3 +53,6 @@ results/pz4_whisper/
 results/pz5_yolo/
 
 models/yolov5_weights/*.pt
+
+# PZ6 generated ResNet results
+results/pz6_resnet/
