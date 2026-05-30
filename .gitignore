@@ -58,3 +58,6 @@ models/yolov5_weights/*.pt
 results/pz6_resnet/
 
 results/pz7_llm/
+
+# PZ8 generated postprocessing results
+results/pz8_postprocessing/
