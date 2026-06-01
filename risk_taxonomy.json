@@ -1,0 +1,114 @@
+{
+    "taxonomy_name": "risk_content_taxonomy",
+    "taxonomy_version": "1.0",
+    "description": "Таксономия риск-маркеров для выявления признаков оружия и потенциально насильственного контента в видеоролике.",
+    "categories": {
+        "weapon": {
+            "description": "Признаки оружия, вооружения, боеприпасов и связанных с ними объектов или действий.",
+            "strong_terms": {
+                "ru": [
+                    "оружие",
+                    "пистолет",
+                    "револьвер",
+                    "винтовка",
+                    "ружье",
+                    "ружьё",
+                    "автомат",
+                    "нож",
+                    "граната",
+                    "боеприпас",
+                    "патрон",
+                    "пуля",
+                    "огнестрельный"
+                ],
+                "en": [
+                    "weapon",
+                    "gun",
+                    "firearm",
+                    "pistol",
+                    "revolver",
+                    "rifle",
+                    "shotgun",
+                    "knife",
+                    "grenade",
+                    "bullet",
+                    "ammo",
+                    "ammunition",
+                    "assault rifle",
+                    "machine gun"
+                ]
+            },
+            "weak_terms": {
+                "ru": [
+                    "стрельба",
+                    "выстрел",
+                    "прицел",
+                    "боевой",
+                    "вооруженный",
+                    "вооружённый"
+                ],
+                "en": [
+                    "shooting",
+                    "shot",
+                    "aim",
+                    "armed",
+                    "military"
+                ]
+            },
+            "model_labels": [
+                "assault rifle",
+                "revolver",
+                "rifle",
+                "shotgun",
+                "pistol",
+                "knife",
+                "grenade"
+            ]
+        },
+        "violence": {
+            "description": "Признаки насилия, нападения, угрозы, травмирования или причинения вреда.",
+            "strong_terms": {
+                "ru": [
+                    "насилие",
+                    "убийство",
+                    "кровь",
+                    "ранение",
+                    "избиение",
+                    "нападение"
+                ],
+                "en": [
+                    "violence",
+                    "murder",
+                    "blood",
+                    "wound",
+                    "injury",
+                    "assault"
+                ]
+            },
+            "weak_terms": {
+                "ru": [
+                    "драка",
+                    "угроза",
+                    "удар",
+                    "атака",
+                    "убить",
+                    "стрелять"
+                ],
+                "en": [
+                    "fight",
+                    "threat",
+                    "hit",
+                    "attack",
+                    "kill",
+                    "killing"
+                ]
+            },
+            "model_labels": [
+                "blood",
+                "stretcher",
+                "bulletproof vest",
+                "guillotine"
+            ]
+        }
+    }
+}

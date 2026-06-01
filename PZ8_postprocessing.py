@@ -4,6 +4,7 @@ from pathlib import Path
 from datetime import datetime
 from difflib import SequenceMatcher
 
+import cv2
 import pandas as pd
 
 
@@ -20,6 +21,7 @@ PZ6_ROOT = BASE_DIR / "results" / "pz6_resnet"
 PZ7_ROOT = BASE_DIR / "results" / "pz7_llm"
 
 RESULT_ROOT = BASE_DIR / "results" / "pz8_postprocessing"
+TAXONOMY_PATH = BASE_DIR / "risk_taxonomy.json"
 
 RUN_TIMESTAMP = datetime.now().strftime("%Y%m%d_%H%M%S")
 RUN_DIR = RESULT_ROOT / f"postprocess_run_{RUN_TIMESTAMP}"
@@ -29,44 +31,16 @@ RUN_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # =====================================================
-# СЛОВАРИ ДЛЯ АНАЛИЗА РИСКОВ
+# НАСТРОЙКИ
 # =====================================================
 
-WEAPON_KEYWORDS = [
-    "оружие", "пистолет", "нож", "автомат", "винтовка", "ружье", "ружьё",
-    "граната", "патрон", "боеприпас", "стрельба", "выстрел", "пуля",
-    "gun", "pistol", "knife", "rifle", "weapon", "firearm", "grenade",
-    "bullet", "ammo", "ammunition", "shooting", "revolver", "shotgun",
-    "machine gun", "assault rifle"
-]
-
-VIOLENCE_KEYWORDS = [
-    "насилие", "драка", "нападение", "кровь", "убийство", "угроза",
-    "избиение", "удар", "ранение", "стрелять", "убить", "атака",
-    "violence", "fight", "attack", "blood", "murder", "threat",
-    "kill", "killing", "wound", "injury", "hit", "assault"
-]
+DEFAULT_FPS = 30.0
+MIN_VIDEO_CONFIDENCE = 0.30
 
 
 # =====================================================
 # ОБЩИЕ ФУНКЦИИ
 # =====================================================
-
-def seconds_to_time(seconds):
-    if seconds is None or seconds == "":
-        return ""
-
-    try:
-        seconds = int(float(seconds))
-    except Exception:
-        return ""
-
-    hours = seconds // 3600
-    minutes = (seconds % 3600) // 60
-    sec = seconds % 60
-
-    return f"{hours:02d}:{minutes:02d}:{sec:02d}"
-
 
 def clean_text(text):
     if text is None:
@@ -83,11 +57,6 @@ def clean_text(text):
 
 
 def normalize_text(text):
-    """
-    Нормализация нужна только для сравнения и поиска ключевых слов.
-    Исходный текст в результатах не меняется.
-    """
-
     if text is None:
         return ""
 
@@ -137,28 +106,6 @@ def text_similarity(text_1, text_2):
     return SequenceMatcher(None, norm_1, norm_2).ratio()
 
 
-def deduplicate_texts(texts, threshold=0.82):
-    unique_texts = []
-
-    for text in texts:
-        text = clean_text(text)
-
-        if not text:
-            continue
-
-        already_exists = False
-
-        for existing in unique_texts:
-            if text_similarity(existing, text) >= threshold:
-                already_exists = True
-                break
-
-        if not already_exists:
-            unique_texts.append(text)
-
-    return unique_texts
-
-
 def contains_any_keyword(text, keywords):
     text_norm = normalize_text(text)
 
@@ -173,7 +120,51 @@ def contains_any_keyword(text, keywords):
         if keyword_norm and keyword_norm in text_norm:
             found.append(keyword)
 
-    return found
+    return list(sorted(set(found)))
+
+
+def seconds_to_time(seconds):
+    if seconds is None or seconds == "":
+        return "00:00:00"
+
+    try:
+        seconds = int(float(seconds))
+    except Exception:
+        return "00:00:00"
+
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    sec = seconds % 60
+
+    return f"{hours:02d}:{minutes:02d}:{sec:02d}"
+
+
+def safe_float(value, default=0.0):
+    try:
+        if value == "":
+            return default
+        return float(value)
+    except Exception:
+        return default
+
+
+def safe_int(value, default=0):
+    try:
+        if value == "":
+            return default
+        return int(float(value))
+    except Exception:
+        return default
+
+
+def frame_from_seconds(seconds, fps):
+    seconds = safe_float(seconds, 0.0)
+    fps = safe_float(fps, DEFAULT_FPS)
+
+    if fps <= 0:
+        fps = DEFAULT_FPS
+
+    return int(round(seconds * fps))
 
 
 def read_json(json_path):
@@ -188,14 +179,6 @@ def read_json(json_path):
 
 
 def read_excel_safe(excel_path, sheet_name=0):
-    """
-    Безопасно читает Excel.
-
-    Важно:
-    если sheet_name=None, pandas возвращает dict всех листов.
-    Поэтому по умолчанию читаем первый лист.
-    """
-
     if excel_path is None or not excel_path.exists():
         return pd.DataFrame()
 
@@ -216,11 +199,6 @@ def read_excel_safe(excel_path, sheet_name=0):
 
 
 def dataframe_to_records(df):
-    """
-    Переводит DataFrame в список словарей.
-    Защищает от случая, когда вместо DataFrame пришёл dict.
-    """
-
     if df is None:
         return []
 
@@ -241,16 +219,6 @@ def dataframe_to_records(df):
     return df.to_dict(orient="records")
 
 
-def get_basename_from_path(path_value):
-    if path_value is None or path_value == "":
-        return ""
-
-    try:
-        return Path(str(path_value)).name
-    except Exception:
-        return ""
-
-
 def find_first_file(folder, pattern):
     if folder is None or not folder.exists():
         return None
@@ -264,7 +232,152 @@ def find_first_file(folder, pattern):
 
 
 # =====================================================
-# ВЫБОР ЗАПУСКОВ ПЗ3–ПЗ7
+# ЗАГРУЗКА ТАКСОНОМИИ РИСКОВ
+# =====================================================
+
+def load_risk_taxonomy():
+    """
+    Загружает риск-таксономию из risk_taxonomy.json.
+
+    Внутри taxonomy есть категории:
+    - weapon
+    - violence
+
+    Для каждой категории берутся:
+    - strong_terms
+    - weak_terms
+    - model_labels
+    """
+
+    if not TAXONOMY_PATH.exists():
+        print("Файл risk_taxonomy.json не найден.")
+        print("Проверь, что он лежит в корне проекта рядом с PZ8_postprocessing.py.")
+        return {
+            "taxonomy_name": "missing_taxonomy",
+            "taxonomy_version": "0.0",
+            "categories": {}
+        }
+
+    try:
+        with open(TAXONOMY_PATH, "r", encoding="utf-8") as file:
+            taxonomy = json.load(file)
+
+        return taxonomy
+
+    except Exception as error:
+        print("Не удалось прочитать risk_taxonomy.json.")
+        print(error)
+
+        return {
+            "taxonomy_name": "broken_taxonomy",
+            "taxonomy_version": "0.0",
+            "categories": {}
+        }
+
+
+def flatten_terms(term_block):
+    terms = []
+
+    if isinstance(term_block, list):
+        return term_block
+
+    if isinstance(term_block, dict):
+        for values in term_block.values():
+            if isinstance(values, list):
+                terms.extend(values)
+
+    return terms
+
+
+def build_keyword_dict(taxonomy):
+    """
+    Преобразует таксономию в словарь вида:
+    {
+        "weapon": [...],
+        "violence": [...]
+    }
+    """
+
+    keyword_dict = {}
+
+    categories = taxonomy.get("categories", {})
+
+    for category_name, category_data in categories.items():
+        terms = []
+
+        terms.extend(flatten_terms(category_data.get("strong_terms", {})))
+        terms.extend(flatten_terms(category_data.get("weak_terms", {})))
+        terms.extend(category_data.get("model_labels", []))
+
+        clean_terms = []
+
+        for term in terms:
+            term = clean_text(term)
+
+            if term and term not in clean_terms:
+                clean_terms.append(term)
+
+        keyword_dict[category_name] = clean_terms
+
+    return keyword_dict
+
+
+# =====================================================
+# АВТООПРЕДЕЛЕНИЕ FPS И КОЛИЧЕСТВА КАДРОВ
+# =====================================================
+
+def get_video_metadata(video_path):
+    metadata = {
+        "fps": DEFAULT_FPS,
+        "frameCount": 0,
+        "video_duration_seconds": 0.0,
+        "video_duration_formatted": "00:00:00",
+        "metadata_source": "fallback"
+    }
+
+    if not video_path:
+        return metadata
+
+    video_path = str(video_path)
+
+    if not Path(video_path).exists():
+        return metadata
+
+    cap = cv2.VideoCapture(video_path)
+
+    if not cap.isOpened():
+        cap.release()
+        return metadata
+
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+
+    cap.release()
+
+    fps = safe_float(fps, DEFAULT_FPS)
+    frame_count = safe_int(frame_count, 0)
+
+    if fps <= 0:
+        fps = DEFAULT_FPS
+
+    duration_seconds = 0.0
+
+    if frame_count > 0 and fps > 0:
+        duration_seconds = round(frame_count / fps, 3)
+
+    metadata = {
+        "fps": round(fps, 3),
+        "frameCount": frame_count,
+        "video_duration_seconds": duration_seconds,
+        "video_duration_formatted": seconds_to_time(duration_seconds),
+        "metadata_source": "opencv"
+    }
+
+    return metadata
+
+
+# =====================================================
+# ВЫБОР ЗАПУСКОВ
 # =====================================================
 
 def choose_run_folder(root_folder, prefix, title, allow_skip=True):
@@ -370,22 +483,18 @@ def choose_all_runs():
 
 
 # =====================================================
-# ЗАГРУЗКА РЕЗУЛЬТАТОВ ПЗ3
+# ЗАГРУЗКА РЕЗУЛЬТАТОВ ПЗ3–ПЗ7
 # =====================================================
 
 def load_pz3_results(pz3_run):
     if pz3_run is None:
         return {
             "ocr_unique_texts": [],
-            "ocr_raw_rows": [],
-            "ocr_segments": [],
-            "ocr_json": {}
+            "ocr_segments": []
         }
 
     unique_texts_path = pz3_run / "unique_texts.txt"
-    raw_excel_path = pz3_run / "raw_ocr_results.xlsx"
     segments_excel_path = pz3_run / "deduplicated_segments.xlsx"
-    json_path = pz3_run / "ocr_results.json"
 
     ocr_unique_texts = []
 
@@ -397,20 +506,13 @@ def load_pz3_results(pz3_run):
                 if line.strip()
             ]
 
-    raw_df = read_excel_safe(raw_excel_path)
     segments_df = read_excel_safe(segments_excel_path)
 
     return {
-        "ocr_unique_texts": deduplicate_texts(ocr_unique_texts),
-        "ocr_raw_rows": dataframe_to_records(raw_df),
-        "ocr_segments": dataframe_to_records(segments_df),
-        "ocr_json": read_json(json_path)
+        "ocr_unique_texts": ocr_unique_texts,
+        "ocr_segments": dataframe_to_records(segments_df)
     }
 
-
-# =====================================================
-# ЗАГРУЗКА РЕЗУЛЬТАТОВ ПЗ4
-# =====================================================
 
 def load_pz4_results(pz4_run):
     if pz4_run is None:
@@ -441,16 +543,11 @@ def load_pz4_results(pz4_run):
     }
 
 
-# =====================================================
-# ЗАГРУЗКА РЕЗУЛЬТАТОВ ПЗ5
-# =====================================================
-
 def load_pz5_results(pz5_run):
     if pz5_run is None:
         return {
             "yolo_objects": [],
             "yolo_frames": [],
-            "yolo_class_summary": [],
             "yolo_json": {}
         }
 
@@ -459,429 +556,217 @@ def load_pz5_results(pz5_run):
 
     objects_df = read_excel_safe(excel_path, sheet_name="objects")
     frames_df = read_excel_safe(excel_path, sheet_name="frames")
-    class_summary_df = read_excel_safe(excel_path, sheet_name="class_summary")
 
     return {
         "yolo_objects": dataframe_to_records(objects_df),
         "yolo_frames": dataframe_to_records(frames_df),
-        "yolo_class_summary": dataframe_to_records(class_summary_df),
         "yolo_json": read_json(json_path)
     }
 
 
-# =====================================================
-# ЗАГРУЗКА РЕЗУЛЬТАТОВ ПЗ6
-# =====================================================
-
 def load_pz6_results(pz6_run):
     if pz6_run is None:
         return {
-            "resnet_top1": [],
-            "resnet_topk": [],
-            "resnet_class_summary": [],
-            "resnet_json": {}
+            "resnet_top1": []
         }
 
     excel_path = pz6_run / "resnet_classification_results.xlsx"
-    json_path = pz6_run / "resnet_classification_report.json"
-
     top1_df = read_excel_safe(excel_path, sheet_name="top1_results")
-    topk_df = read_excel_safe(excel_path, sheet_name="topk_results")
-    summary_df = read_excel_safe(excel_path, sheet_name="class_summary")
 
     return {
-        "resnet_top1": dataframe_to_records(top1_df),
-        "resnet_topk": dataframe_to_records(topk_df),
-        "resnet_class_summary": dataframe_to_records(summary_df),
-        "resnet_json": read_json(json_path)
+        "resnet_top1": dataframe_to_records(top1_df)
     }
 
-
-# =====================================================
-# ЗАГРУЗКА РЕЗУЛЬТАТОВ ПЗ7
-# =====================================================
 
 def load_pz7_results(pz7_run):
     if pz7_run is None:
         return {
-            "llm_results": [],
-            "llm_scene_summary": [],
-            "llm_risk_summary": [],
-            "llm_json": {}
+            "llm_results": []
         }
 
     excel_path = pz7_run / "llm_image_analysis_results.xlsx"
-    json_path = pz7_run / "llm_image_analysis_report.json"
-
     results_df = read_excel_safe(excel_path, sheet_name="llm_results")
-    scene_summary_df = read_excel_safe(excel_path, sheet_name="scene_summary")
-    risk_summary_df = read_excel_safe(excel_path, sheet_name="risk_summary")
 
     return {
-        "llm_results": dataframe_to_records(results_df),
-        "llm_scene_summary": dataframe_to_records(scene_summary_df),
-        "llm_risk_summary": dataframe_to_records(risk_summary_df),
-        "llm_json": read_json(json_path)
+        "llm_results": dataframe_to_records(results_df)
     }
 
 
 # =====================================================
-# ПОСТОБРАБОТКА ТЕКСТА
+# СОЗДАНИЕ DETECTIONS В ФОРМАТЕ ПРЕПОДАВАТЕЛЯ
 # =====================================================
 
-def build_combined_texts(pz3_data, pz4_data):
-    combined_texts = []
+def make_detection(
+    subclass,
+    detection_type,
+    start_seconds,
+    end_seconds,
+    fps,
+    confidence=0.9
+):
+    start_seconds = safe_float(start_seconds, 0.0)
+    end_seconds = safe_float(end_seconds, start_seconds)
 
-    for text in pz3_data.get("ocr_unique_texts", []):
-        combined_texts.append({
-            "source": "ocr_screen_text",
-            "time_formatted": "",
-            "text": clean_text(text)
-        })
+    if end_seconds < start_seconds:
+        end_seconds = start_seconds
 
-    audio_segments = pz4_data.get("audio_segments", [])
+    start_frame = frame_from_seconds(start_seconds, fps)
+    end_frame = frame_from_seconds(end_seconds, fps)
 
-    if audio_segments:
-        for segment in audio_segments:
-            text = segment.get("text", "")
-
-            if text:
-                combined_texts.append({
-                    "source": "whisper_audio_text",
-                    "time_formatted": segment.get("time_interval", ""),
-                    "text": clean_text(text)
-                })
-    else:
-        full_text = pz4_data.get("audio_full_text", "")
-
-        if full_text:
-            combined_texts.append({
-                "source": "whisper_audio_text",
-                "time_formatted": "",
-                "text": clean_text(full_text)
-            })
-
-    unique_text_values = deduplicate_texts(
-        [item["text"] for item in combined_texts],
-        threshold=0.82
-    )
-
-    unique_rows = []
-
-    for index, text in enumerate(unique_text_values, start=1):
-        source = "mixed"
-        time_formatted = ""
-
-        for item in combined_texts:
-            if text_similarity(item["text"], text) >= 0.90:
-                source = item["source"]
-                time_formatted = item.get("time_formatted", "")
-                break
-
-        unique_rows.append({
-            "text_id": index,
-            "source": source,
-            "time_formatted": time_formatted,
-            "text": text
-        })
-
-    return combined_texts, unique_rows
-
-
-# =====================================================
-# ГРУППИРОВКА YOLO-ОБЪЕКТОВ
-# =====================================================
-
-def build_object_group(class_name, group_rows):
-    times = []
-
-    for row in group_rows:
-        try:
-            if row.get("time_seconds", "") != "":
-                times.append(float(row.get("time_seconds")))
-        except Exception:
-            pass
-
-    if times:
-        start_time = min(times)
-        end_time = max(times)
-    else:
-        start_time = ""
-        end_time = ""
-
-    confidences = []
-
-    for row in group_rows:
-        try:
-            confidences.append(float(row.get("confidence", 0)))
-        except Exception:
-            pass
-
-    if confidences:
-        max_confidence = round(max(confidences), 4)
-        mean_confidence = round(sum(confidences) / len(confidences), 4)
-    else:
-        max_confidence = 0
-        mean_confidence = 0
-
-    example_frame = group_rows[0].get("frame_file", "")
-    example_crop = group_rows[0].get("crop_path", "")
+    start_time = seconds_to_time(start_seconds)
+    end_time = seconds_to_time(end_seconds)
 
     return {
-        "class_name": class_name,
-        "start_time_seconds": start_time,
-        "end_time_seconds": end_time,
-        "start_time": seconds_to_time(start_time),
-        "end_time": seconds_to_time(end_time),
-        "time_interval": f"{seconds_to_time(start_time)} - {seconds_to_time(end_time)}",
-        "detections_count": len(group_rows),
-        "max_confidence": max_confidence,
-        "mean_confidence": mean_confidence,
-        "example_frame": example_frame,
-        "example_crop": example_crop
+        "startFrame": start_frame,
+        "endFrame": end_frame,
+        "start_time": start_time,
+        "end_time": end_time,
+        "time_interval": f"{start_time} - {end_time}",
+        "subclass": subclass,
+        "confidence": round(float(confidence), 4),
+        "type": detection_type
     }
 
 
-def group_yolo_objects(yolo_objects, max_gap_seconds=3.0):
-    """
-    Склеивает повторяющиеся YOLO-срабатывания по классу и времени.
-    """
+def add_keyword_detections_from_text(
+    detections,
+    text,
+    start_seconds,
+    end_seconds,
+    fps,
+    detection_type,
+    base_confidence,
+    keyword_dict
+):
+    for subclass, keywords in keyword_dict.items():
+        hits = contains_any_keyword(text, keywords)
 
-    if not yolo_objects:
-        return []
-
-    grouped_rows = []
-
-    df = pd.DataFrame(yolo_objects).fillna("")
-
-    if "class_name" not in df.columns:
-        return []
-
-    if "time_seconds" not in df.columns:
-        df["time_seconds"] = ""
-
-    for class_name, class_df in df.groupby("class_name"):
-        rows = class_df.to_dict(orient="records")
-
-        rows = sorted(
-            rows,
-            key=lambda row: (
-                float(row.get("time_seconds", 0)) if row.get("time_seconds", "") != "" else 999999,
-                int(row.get("frame_number", 0)) if row.get("frame_number", "") != "" else 999999
+        if hits:
+            detections.append(
+                make_detection(
+                    subclass=subclass,
+                    detection_type=detection_type,
+                    start_seconds=start_seconds,
+                    end_seconds=end_seconds,
+                    fps=fps,
+                    confidence=base_confidence
+                )
             )
+
+
+def build_text_detections(pz3_data, pz4_data, fps, keyword_dict):
+    detections = []
+
+    for row in pz3_data.get("ocr_segments", []):
+        text = row.get("final_text", "")
+
+        if not text:
+            text = row.get("recognized_text", "")
+
+        start_seconds = row.get("start_time_seconds", "")
+        end_seconds = row.get("end_time_seconds", "")
+
+        add_keyword_detections_from_text(
+            detections=detections,
+            text=text,
+            start_seconds=start_seconds,
+            end_seconds=end_seconds,
+            fps=fps,
+            detection_type="text",
+            base_confidence=0.85,
+            keyword_dict=keyword_dict
         )
 
-        current_group = []
+    if not pz3_data.get("ocr_segments"):
+        for text in pz3_data.get("ocr_unique_texts", []):
+            add_keyword_detections_from_text(
+                detections=detections,
+                text=text,
+                start_seconds=0,
+                end_seconds=0,
+                fps=fps,
+                detection_type="text",
+                base_confidence=0.75,
+                keyword_dict=keyword_dict
+            )
 
-        for row in rows:
-            if not current_group:
-                current_group.append(row)
-                continue
-
-            previous = current_group[-1]
-
-            try:
-                current_time = float(row.get("time_seconds", 0))
-                previous_time = float(previous.get("time_seconds", 0))
-                time_gap = current_time - previous_time
-            except Exception:
-                time_gap = 0
-
-            if time_gap <= max_gap_seconds:
-                current_group.append(row)
-            else:
-                grouped_rows.append(build_object_group(class_name, current_group))
-                current_group = [row]
-
-        if current_group:
-            grouped_rows.append(build_object_group(class_name, current_group))
-
-    for index, row in enumerate(grouped_rows, start=1):
-        row["object_group_id"] = index
-
-    return grouped_rows
-
-
-# =====================================================
-# ОБЪЕДИНЕНИЕ YOLO + RESNET + LLM
-# =====================================================
-
-def build_enriched_objects(yolo_objects, resnet_top1, llm_results):
-    """
-    Соединяет YOLO, ResNet и LLM по имени crop-изображения.
-    """
-
-    resnet_by_image = {}
-
-    for row in resnet_top1:
-        image_file = str(row.get("image_file", ""))
-
-        if image_file:
-            resnet_by_image[image_file] = row
-
-    llm_by_image = {}
-
-    for row in llm_results:
-        image_file = str(row.get("image_file", ""))
-
-        if image_file:
-            llm_by_image[image_file] = row
-
-    enriched = []
-
-    for index, yolo_row in enumerate(yolo_objects, start=1):
-        crop_file = get_basename_from_path(yolo_row.get("crop_path", ""))
-
-        resnet_row = resnet_by_image.get(crop_file, {})
-        llm_row = llm_by_image.get(crop_file, {})
-
-        enriched.append({
-            "object_id": index,
-            "frame_file": yolo_row.get("frame_file", ""),
-            "frame_number": yolo_row.get("frame_number", ""),
-            "time_seconds": yolo_row.get("time_seconds", ""),
-            "time_formatted": yolo_row.get("time_formatted", ""),
-            "yolo_class": yolo_row.get("class_name", ""),
-            "yolo_confidence": yolo_row.get("confidence", ""),
-            "crop_file": crop_file,
-            "crop_path": yolo_row.get("crop_path", ""),
-            "resnet_top1_class": resnet_row.get("top1_class_name", ""),
-            "resnet_top1_confidence": resnet_row.get("top1_confidence", ""),
-            "llm_description": llm_row.get("short_description_ru", ""),
-            "llm_scene_type": llm_row.get("scene_type", ""),
-            "llm_main_objects": llm_row.get("main_objects_text", ""),
-            "llm_people_present": llm_row.get("people_present", ""),
-            "llm_risk_flags": llm_row.get("possible_risk_flags", ""),
-            "llm_comment": llm_row.get("moderation_comment_ru", "")
-        })
-
-    return enriched
-
-
-# =====================================================
-# АНАЛИЗ РИСКОВ: ОРУЖИЕ И НАСИЛИЕ
-# =====================================================
-
-def add_risk_source(risk_sources, source, risk_type, evidence, time_formatted="", confidence=""):
-    evidence = clean_text(evidence)
-
-    if not evidence:
-        return
-
-    risk_sources.append({
-        "source": source,
-        "risk_type": risk_type,
-        "evidence": evidence,
-        "time_formatted": time_formatted,
-        "confidence": confidence
-    })
-
-
-def analyze_text_risks(unique_texts):
-    risk_sources = []
-
-    for row in unique_texts:
+    for row in pz4_data.get("audio_segments", []):
         text = row.get("text", "")
-        source = row.get("source", "text")
-        time_formatted = row.get("time_formatted", "")
 
-        weapon_hits = contains_any_keyword(text, WEAPON_KEYWORDS)
-        violence_hits = contains_any_keyword(text, VIOLENCE_KEYWORDS)
+        start_seconds = row.get("start_seconds", "")
+        end_seconds = row.get("end_seconds", "")
 
-        if weapon_hits:
-            add_risk_source(
-                risk_sources,
-                source,
-                "weapon",
-                f"Найдены ключевые слова оружия: {', '.join(weapon_hits)}. Фрагмент: {text}",
-                time_formatted
-            )
+        add_keyword_detections_from_text(
+            detections=detections,
+            text=text,
+            start_seconds=start_seconds,
+            end_seconds=end_seconds,
+            fps=fps,
+            detection_type="audio",
+            base_confidence=0.85,
+            keyword_dict=keyword_dict
+        )
 
-        if violence_hits:
-            add_risk_source(
-                risk_sources,
-                source,
-                "violence",
-                f"Найдены ключевые слова насилия: {', '.join(violence_hits)}. Фрагмент: {text}",
-                time_formatted
-            )
-
-    return risk_sources
+    return detections
 
 
-def analyze_yolo_risks(yolo_objects):
-    risk_sources = []
+def build_yolo_detections(pz5_data, fps, keyword_dict):
+    detections = []
 
-    for row in yolo_objects:
+    for row in pz5_data.get("yolo_objects", []):
         class_name = row.get("class_name", "")
-        time_formatted = row.get("time_formatted", "")
-        confidence = row.get("confidence", "")
+        confidence = safe_float(row.get("confidence", 0.8), 0.8)
+        time_seconds = row.get("time_seconds", "")
 
-        weapon_hits = contains_any_keyword(class_name, WEAPON_KEYWORDS)
-        violence_hits = contains_any_keyword(class_name, VIOLENCE_KEYWORDS)
+        for subclass, keywords in keyword_dict.items():
+            hits = contains_any_keyword(class_name, keywords)
 
-        if weapon_hits:
-            add_risk_source(
-                risk_sources,
-                "yolo",
-                "weapon",
-                f"YOLO обнаружила объект класса: {class_name}",
-                time_formatted,
-                confidence
-            )
+            if hits:
+                detections.append(
+                    make_detection(
+                        subclass=subclass,
+                        detection_type="video",
+                        start_seconds=time_seconds,
+                        end_seconds=safe_float(time_seconds, 0.0) + 1.0,
+                        fps=fps,
+                        confidence=confidence
+                    )
+                )
 
-        if violence_hits:
-            add_risk_source(
-                risk_sources,
-                "yolo",
-                "violence",
-                f"YOLO обнаружила объект класса: {class_name}",
-                time_formatted,
-                confidence
-            )
-
-    return risk_sources
+    return detections
 
 
-def analyze_resnet_risks(resnet_top1):
-    risk_sources = []
+def build_resnet_detections(pz6_data, fps, keyword_dict):
+    detections = []
 
-    for row in resnet_top1:
+    for row in pz6_data.get("resnet_top1", []):
         class_name = row.get("top1_class_name", "")
-        time_formatted = row.get("time_formatted", "")
-        confidence = row.get("top1_confidence", "")
+        confidence = safe_float(row.get("top1_confidence", 0.75), 0.75)
+        time_seconds = row.get("time_seconds", "")
 
-        weapon_hits = contains_any_keyword(class_name, WEAPON_KEYWORDS)
-        violence_hits = contains_any_keyword(class_name, VIOLENCE_KEYWORDS)
+        for subclass, keywords in keyword_dict.items():
+            hits = contains_any_keyword(class_name, keywords)
 
-        if weapon_hits:
-            add_risk_source(
-                risk_sources,
-                "resnet",
-                "weapon",
-                f"ResNet классифицировала изображение как: {class_name}",
-                time_formatted,
-                confidence
-            )
+            if hits:
+                detections.append(
+                    make_detection(
+                        subclass=subclass,
+                        detection_type="video",
+                        start_seconds=time_seconds,
+                        end_seconds=safe_float(time_seconds, 0.0) + 1.0,
+                        fps=fps,
+                        confidence=confidence
+                    )
+                )
 
-        if violence_hits:
-            add_risk_source(
-                risk_sources,
-                "resnet",
-                "violence",
-                f"ResNet классифицировала изображение как: {class_name}",
-                time_formatted,
-                confidence
-            )
-
-    return risk_sources
+    return detections
 
 
-def analyze_llm_risks(llm_results):
-    risk_sources = []
+def build_llm_detections(pz7_data, fps, keyword_dict):
+    detections = []
 
-    for row in llm_results:
-        time_formatted = row.get("time_formatted", "")
+    for row in pz7_data.get("llm_results", []):
+        time_seconds = row.get("time_seconds", "")
 
         fields = [
             row.get("short_description_ru", ""),
@@ -898,445 +783,285 @@ def analyze_llm_risks(llm_results):
             if field
         ])
 
-        weapon_hits = contains_any_keyword(full_text, WEAPON_KEYWORDS)
-        violence_hits = contains_any_keyword(full_text, VIOLENCE_KEYWORDS)
+        add_keyword_detections_from_text(
+            detections=detections,
+            text=full_text,
+            start_seconds=time_seconds,
+            end_seconds=safe_float(time_seconds, 0.0) + 1.0,
+            fps=fps,
+            detection_type="video",
+            base_confidence=0.9,
+            keyword_dict=keyword_dict
+        )
 
-        if weapon_hits:
-            add_risk_source(
-                risk_sources,
-                "llm",
-                "weapon",
-                f"LLM-описание содержит признаки оружия: {', '.join(weapon_hits)}. Описание: {full_text}",
-                time_formatted
-            )
-
-        if violence_hits:
-            add_risk_source(
-                risk_sources,
-                "llm",
-                "violence",
-                f"LLM-описание содержит признаки насилия: {', '.join(violence_hits)}. Описание: {full_text}",
-                time_formatted
-            )
-
-    return risk_sources
-
-
-def deduplicate_risk_sources(risk_sources):
-    unique_sources = []
-
-    for source in risk_sources:
-        evidence = source.get("evidence", "")
-
-        duplicate = False
-
-        for existing in unique_sources:
-            if (
-                source.get("source") == existing.get("source")
-                and source.get("risk_type") == existing.get("risk_type")
-                and text_similarity(evidence, existing.get("evidence", "")) >= 0.88
-            ):
-                duplicate = True
-                break
-
-        if not duplicate:
-            unique_sources.append(source)
-
-    return unique_sources
-
-
-def calculate_risk_level(risk_sources):
-    if not risk_sources:
-        return "none"
-
-    visual_sources = [
-        item for item in risk_sources
-        if item.get("source") in ["yolo", "resnet", "llm"]
-    ]
-
-    text_sources = [
-        item for item in risk_sources
-        if item.get("source") in ["ocr_screen_text", "whisper_audio_text", "text"]
-    ]
-
-    weapon_sources = [
-        item for item in risk_sources
-        if item.get("risk_type") == "weapon"
-    ]
-
-    violence_sources = [
-        item for item in risk_sources
-        if item.get("risk_type") == "violence"
-    ]
-
-    if len(weapon_sources) >= 2 and len(visual_sources) >= 1:
-        return "high"
-
-    if len(violence_sources) >= 2 and len(visual_sources) >= 1:
-        return "high"
-
-    if len(visual_sources) >= 1:
-        return "medium"
-
-    if len(text_sources) >= 1:
-        return "medium"
-
-    return "low"
-
-
-def build_risk_analysis(unique_texts, pz5_data, pz6_data, pz7_data):
-    risk_sources = []
-
-    risk_sources.extend(analyze_text_risks(unique_texts))
-    risk_sources.extend(analyze_yolo_risks(pz5_data.get("yolo_objects", [])))
-    risk_sources.extend(analyze_resnet_risks(pz6_data.get("resnet_top1", [])))
-    risk_sources.extend(analyze_llm_risks(pz7_data.get("llm_results", [])))
-
-    risk_sources = deduplicate_risk_sources(risk_sources)
-
-    weapon_detected = any(
-        item.get("risk_type") == "weapon"
-        for item in risk_sources
-    )
-
-    violence_detected = any(
-        item.get("risk_type") == "violence"
-        for item in risk_sources
-    )
-
-    risk_level = calculate_risk_level(risk_sources)
-
-    if risk_level == "none":
-        final_comment = "Признаки оружия или насильственного контента не обнаружены."
-    elif risk_level == "low":
-        final_comment = "Обнаружены слабые косвенные признаки. Рекомендуется ручная проверка."
-    elif risk_level == "medium":
-        final_comment = "Обнаружены признаки потенциально опасного контента. Требуется ручная проверка."
-    else:
-        final_comment = "Обнаружены выраженные признаки оружия или насильственного контента. Требуется приоритетная ручная проверка."
-
-    return {
-        "weapon_detected": weapon_detected,
-        "violence_detected": violence_detected,
-        "risk_level": risk_level,
-        "risk_sources_count": len(risk_sources),
-        "risk_sources": risk_sources,
-        "final_comment": final_comment
-    }
+    return detections
 
 
 # =====================================================
-# ИТОГОВАЯ СВОДКА
+# ФИЛЬТРАЦИЯ И СКЛЕЙКА DETECTIONS
 # =====================================================
 
-def build_final_summary(
-    pz3_data,
-    pz4_data,
-    pz5_data,
-    pz6_data,
-    pz7_data,
-    unique_texts,
-    grouped_objects,
-    enriched_objects,
-    risk_analysis
-):
-    summary = {
-        "ocr_unique_texts_count": len(pz3_data.get("ocr_unique_texts", [])),
-        "audio_segments_count": len(pz4_data.get("audio_segments", [])),
-        "combined_unique_texts_count": len(unique_texts),
-        "yolo_detections_count": len(pz5_data.get("yolo_objects", [])),
-        "grouped_objects_count": len(grouped_objects),
-        "resnet_images_count": len(pz6_data.get("resnet_top1", [])),
-        "llm_descriptions_count": len(pz7_data.get("llm_results", [])),
-        "enriched_objects_count": len(enriched_objects),
-        "weapon_detected": risk_analysis.get("weapon_detected"),
-        "violence_detected": risk_analysis.get("violence_detected"),
-        "risk_level": risk_analysis.get("risk_level"),
-        "risk_sources_count": risk_analysis.get("risk_sources_count")
-    }
+def filter_low_confidence_detections(detections):
+    filtered = []
 
-    return summary
+    for det in detections:
+        det_type = det.get("type", "")
+        confidence = safe_float(det.get("confidence", 0.0), 0.0)
+
+        if det_type == "video" and confidence < MIN_VIDEO_CONFIDENCE:
+            continue
+
+        filtered.append(det)
+
+    return filtered
 
 
-def build_summary_table(summary):
-    labels = {
-        "ocr_unique_texts_count": "Уникальные OCR-фразы",
-        "audio_segments_count": "Сегменты аудиорасшифровки Whisper",
-        "combined_unique_texts_count": "Объединённые уникальные текстовые фрагменты",
-        "yolo_detections_count": "Всего YOLO-детекций",
-        "grouped_objects_count": "Сгруппированные объекты YOLO",
-        "resnet_images_count": "Изображения, классифицированные ResNet",
-        "llm_descriptions_count": "Изображения, описанные LLM",
-        "enriched_objects_count": "Объединённые записи YOLO + ResNet + LLM",
-        "weapon_detected": "Обнаружены признаки оружия",
-        "violence_detected": "Обнаружены признаки насилия",
-        "risk_level": "Итоговый уровень риска",
-        "risk_sources_count": "Количество найденных риск-признаков"
-    }
+def merge_time_based_detections(detections, fps, max_gap_seconds=3.0):
+    if not detections:
+        return []
 
-    rows = []
+    prepared = sorted(
+        detections,
+        key=lambda row: (
+            row.get("subclass", ""),
+            row.get("type", ""),
+            row.get("startFrame", 0)
+        )
+    )
 
-    for key, value in summary.items():
-        rows.append({
-            "metric": key,
-            "description": labels.get(key, key),
-            "value": value
+    grouped = []
+    current = None
+
+    max_gap_frames = int(max_gap_seconds * fps)
+
+    for det in prepared:
+        if current is None:
+            current = det.copy()
+            continue
+
+        same_class = det.get("subclass") == current.get("subclass")
+        same_type = det.get("type") == current.get("type")
+
+        gap_frames = safe_int(det.get("startFrame", 0), 0) - safe_int(current.get("endFrame", 0), 0)
+
+        if same_class and same_type and gap_frames <= max_gap_frames:
+            current["endFrame"] = max(
+                safe_int(current.get("endFrame", 0), 0),
+                safe_int(det.get("endFrame", 0), 0)
+            )
+
+            current["confidence"] = round(
+                max(
+                    safe_float(current.get("confidence", 0.0), 0.0),
+                    safe_float(det.get("confidence", 0.0), 0.0)
+                ),
+                4
+            )
+        else:
+            grouped.append(current)
+            current = det.copy()
+
+    if current is not None:
+        grouped.append(current)
+
+    return grouped
+
+
+def normalize_detection_times(detections, fps):
+    normalized = []
+
+    for det in detections:
+        start_frame = safe_int(det.get("startFrame", 0), 0)
+        end_frame = safe_int(det.get("endFrame", 0), 0)
+
+        start_seconds = start_frame / fps
+        end_seconds = end_frame / fps
+
+        start_time = seconds_to_time(start_seconds)
+        end_time = seconds_to_time(end_seconds)
+
+        normalized.append({
+            "startFrame": start_frame,
+            "endFrame": end_frame,
+            "start_time": start_time,
+            "end_time": end_time,
+            "time_interval": f"{start_time} - {end_time}",
+            "subclass": det.get("subclass", ""),
+            "confidence": round(safe_float(det.get("confidence", 0.0), 0.0), 4),
+            "type": det.get("type", "")
         })
 
-    return rows
+    return normalized
 
 
-# =====================================================
-# СОХРАНЕНИЕ РЕЗУЛЬТАТОВ
-# =====================================================
-
-def save_txt_summary(summary, unique_texts, grouped_objects, risk_analysis):
-    txt_path = RUN_DIR / "final_text_summary.txt"
-
-    with open(txt_path, "w", encoding="utf-8") as file:
-        file.write("ПЗ8. Итоговая постобработка результатов анализа видео\n\n")
-
-        file.write("Сводка:\n")
-        file.write(f"- Уникальные OCR-фразы: {summary['ocr_unique_texts_count']}\n")
-        file.write(f"- Сегменты аудиорасшифровки: {summary['audio_segments_count']}\n")
-        file.write(f"- Объединённые уникальные текстовые фрагменты: {summary['combined_unique_texts_count']}\n")
-        file.write(f"- YOLO-детекции: {summary['yolo_detections_count']}\n")
-        file.write(f"- Сгруппированные объекты: {summary['grouped_objects_count']}\n")
-        file.write(f"- ResNet-классификаций: {summary['resnet_images_count']}\n")
-        file.write(f"- LLM-описаний: {summary['llm_descriptions_count']}\n\n")
-
-        file.write("Анализ риска:\n")
-        file.write(f"- Признаки оружия: {risk_analysis.get('weapon_detected')}\n")
-        file.write(f"- Признаки насилия: {risk_analysis.get('violence_detected')}\n")
-        file.write(f"- Уровень риска: {risk_analysis.get('risk_level')}\n")
-        file.write(f"- Комментарий: {risk_analysis.get('final_comment')}\n\n")
-
-        file.write("Источники риск-признаков:\n")
-
-        if risk_analysis.get("risk_sources"):
-            for row in risk_analysis.get("risk_sources", []):
-                file.write(
-                    f"- [{row.get('source')}] {row.get('risk_type')} | "
-                    f"{row.get('time_formatted')} | {row.get('evidence')}\n"
-                )
-        else:
-            file.write("- Риск-признаки не обнаружены.\n")
-
-        file.write("\nОбъединённые уникальные тексты:\n")
-
-        for row in unique_texts:
-            file.write(f"- [{row.get('source')}] {row.get('text')}\n")
-
-        file.write("\nСгруппированные объекты:\n")
-
-        for row in grouped_objects:
-            file.write(
-                f"- {row.get('class_name')} | "
-                f"{row.get('time_interval')} | "
-                f"срабатываний: {row.get('detections_count')}\n"
-            )
-
-    return txt_path
-
-
-def save_deduplicated_texts(unique_texts):
-    txt_path = RUN_DIR / "deduplicated_texts.txt"
-
-    with open(txt_path, "w", encoding="utf-8") as file:
-        for row in unique_texts:
-            file.write(row.get("text", "") + "\n")
-
-    return txt_path
-
-
-def save_excel(
-    summary_rows,
-    unique_texts,
-    pz4_data,
-    pz5_data,
-    grouped_objects,
-    pz6_data,
-    pz7_data,
-    enriched_objects,
-    risk_analysis
-):
-    excel_path = RUN_DIR / "final_analysis_tables.xlsx"
-
-    summary_df = pd.DataFrame(summary_rows)
-    texts_df = pd.DataFrame(unique_texts)
-    audio_df = pd.DataFrame(pz4_data.get("audio_segments", []))
-    yolo_df = pd.DataFrame(pz5_data.get("yolo_objects", []))
-    grouped_df = pd.DataFrame(grouped_objects)
-    resnet_df = pd.DataFrame(pz6_data.get("resnet_top1", []))
-    llm_df = pd.DataFrame(pz7_data.get("llm_results", []))
-    enriched_df = pd.DataFrame(enriched_objects)
-
-    risk_summary_df = pd.DataFrame([{
-        "weapon_detected": risk_analysis.get("weapon_detected"),
-        "violence_detected": risk_analysis.get("violence_detected"),
-        "risk_level": risk_analysis.get("risk_level"),
-        "risk_sources_count": risk_analysis.get("risk_sources_count"),
-        "final_comment": risk_analysis.get("final_comment")
-    }])
-
-    risk_sources_df = pd.DataFrame(risk_analysis.get("risk_sources", []))
-
-    with pd.ExcelWriter(excel_path, engine="openpyxl") as writer:
-        summary_df.to_excel(writer, sheet_name="summary", index=False)
-        risk_summary_df.to_excel(writer, sheet_name="risk_summary", index=False)
-        risk_sources_df.to_excel(writer, sheet_name="risk_sources", index=False)
-        texts_df.to_excel(writer, sheet_name="texts", index=False)
-        audio_df.to_excel(writer, sheet_name="audio_segments", index=False)
-        yolo_df.to_excel(writer, sheet_name="yolo_objects", index=False)
-        grouped_df.to_excel(writer, sheet_name="grouped_objects", index=False)
-        resnet_df.to_excel(writer, sheet_name="resnet_results", index=False)
-        llm_df.to_excel(writer, sheet_name="llm_results", index=False)
-        enriched_df.to_excel(writer, sheet_name="enriched_objects", index=False)
-
-    return excel_path
-
-
-def save_json_report(
-    selected_runs,
+def build_all_detections(
     pz3_data,
     pz4_data,
     pz5_data,
     pz6_data,
     pz7_data,
-    combined_texts,
-    unique_texts,
-    grouped_objects,
-    enriched_objects,
-    risk_analysis,
-    summary
+    fps,
+    keyword_dict
 ):
-    json_path = RUN_DIR / "final_analysis_report.json"
+    detections = []
 
-    report = {
-        "report_type": "FINAL_VIDEO_ANALYSIS_REPORT",
-        "task": "Detection of visual, textual and audio signs of weapons and potentially violent content",
-        "selected_runs": {
-            "pz3_run": str(selected_runs.get("pz3_run")) if selected_runs.get("pz3_run") else "",
-            "pz4_run": str(selected_runs.get("pz4_run")) if selected_runs.get("pz4_run") else "",
-            "pz5_run": str(selected_runs.get("pz5_run")) if selected_runs.get("pz5_run") else "",
-            "pz6_run": str(selected_runs.get("pz6_run")) if selected_runs.get("pz6_run") else "",
-            "pz7_run": str(selected_runs.get("pz7_run")) if selected_runs.get("pz7_run") else ""
-        },
-        "risk_analysis": risk_analysis,
-        "text_analysis": {
-            "ocr_unique_texts": pz3_data.get("ocr_unique_texts", []),
-            "audio_full_text": pz4_data.get("audio_full_text", ""),
-            "audio_segments": pz4_data.get("audio_segments", []),
-            "combined_texts": combined_texts,
-            "combined_unique_texts": unique_texts
-        },
-        "object_analysis": {
-            "yolo_objects": pz5_data.get("yolo_objects", []),
-            "grouped_objects": grouped_objects,
-            "resnet_top1": pz6_data.get("resnet_top1", []),
-            "llm_results": pz7_data.get("llm_results", []),
-            "enriched_objects": enriched_objects
-        },
-        "final_summary": summary,
+    detections.extend(build_text_detections(pz3_data, pz4_data, fps, keyword_dict))
+    detections.extend(build_yolo_detections(pz5_data, fps, keyword_dict))
+    detections.extend(build_resnet_detections(pz6_data, fps, keyword_dict))
+    detections.extend(build_llm_detections(pz7_data, fps, keyword_dict))
+
+    detections = filter_low_confidence_detections(detections)
+
+    detections = merge_time_based_detections(
+        detections,
+        fps=fps,
+        max_gap_seconds=3.0
+    )
+
+    detections = normalize_detection_times(detections, fps)
+
+    detections = sorted(
+        detections,
+        key=lambda row: (
+            row.get("startFrame", 0),
+            row.get("subclass", ""),
+            row.get("type", "")
+        )
+    )
+
+    return detections
+
+
+# =====================================================
+# SOURCE INFO
+# =====================================================
+
+def get_video_path_from_data(pz4_data, pz5_data):
+    audio_json = pz4_data.get("audio_json", {})
+
+    if audio_json.get("video_path"):
+        return audio_json.get("video_path")
+
+    yolo_json = pz5_data.get("yolo_json", {})
+
+    if yolo_json.get("video_path"):
+        return yolo_json.get("video_path")
+
+    return ""
+
+
+def calculate_frame_count_fallback(pz5_data, detections):
+    yolo_frames = pz5_data.get("yolo_frames", [])
+
+    frame_numbers = []
+
+    for row in yolo_frames:
+        frame_number = row.get("frame_number", "")
+
+        if frame_number != "":
+            frame_numbers.append(safe_int(frame_number, 0))
+
+    if frame_numbers:
+        return max(frame_numbers) + 1
+
+    detection_frames = [
+        safe_int(row.get("endFrame", 0), 0)
+        for row in detections
+    ]
+
+    if detection_frames:
+        return max(detection_frames) + 1
+
+    return 0
+
+
+def build_source_info(pz4_data, pz5_data, detections, metadata):
+    video_path = get_video_path_from_data(pz4_data, pz5_data)
+
+    fps = safe_float(metadata.get("fps", DEFAULT_FPS), DEFAULT_FPS)
+    frame_count = safe_int(metadata.get("frameCount", 0), 0)
+
+    if frame_count <= 0:
+        frame_count = calculate_frame_count_fallback(pz5_data, detections)
+
+    if fps <= 0:
+        fps = DEFAULT_FPS
+
+    if frame_count > 0:
+        duration_seconds = round(frame_count / fps, 3)
+    else:
+        duration_seconds = 0.0
+
+    source_info = {
+        "frameCount": frame_count,
+        "fps": fps,
+        "video_path": video_path,
+        "video_duration_seconds": duration_seconds,
+        "video_duration_formatted": seconds_to_time(duration_seconds),
         "analysis_timestamp": datetime.now().isoformat()
     }
 
+    return source_info
+
+
+# =====================================================
+# СОХРАНЕНИЕ ФИНАЛЬНОГО JSON
+# =====================================================
+
+def save_final_json(source_info, detections):
+    json_path = RUN_DIR / "final_analysis_report.json"
+
+    report = {
+        "report_type": "TIME_BASED_REPORT",
+        "source_info": source_info,
+        "detections": detections
+    }
+
     with open(json_path, "w", encoding="utf-8") as file:
-        json.dump(report, file, ensure_ascii=False, indent=4, default=str)
+        json.dump(report, file, ensure_ascii=False, indent=4)
 
     return json_path
 
 
-def save_all_results(
-    selected_runs,
-    pz3_data,
-    pz4_data,
-    pz5_data,
-    pz6_data,
-    pz7_data,
-    combined_texts,
-    unique_texts,
-    grouped_objects,
-    enriched_objects,
-    risk_analysis,
-    summary
-):
-    summary_rows = build_summary_table(summary)
+def save_excel_preview(source_info, detections):
+    excel_path = RUN_DIR / "final_analysis_preview.xlsx"
 
-    excel_path = save_excel(
-        summary_rows,
-        unique_texts,
-        pz4_data,
-        pz5_data,
-        grouped_objects,
-        pz6_data,
-        pz7_data,
-        enriched_objects,
-        risk_analysis
-    )
+    source_df = pd.DataFrame([source_info])
+    detections_df = pd.DataFrame(detections)
 
-    json_path = save_json_report(
-        selected_runs,
-        pz3_data,
-        pz4_data,
-        pz5_data,
-        pz6_data,
-        pz7_data,
-        combined_texts,
-        unique_texts,
-        grouped_objects,
-        enriched_objects,
-        risk_analysis,
-        summary
-    )
+    with pd.ExcelWriter(excel_path, engine="openpyxl") as writer:
+        source_df.to_excel(writer, sheet_name="source_info", index=False)
+        detections_df.to_excel(writer, sheet_name="detections", index=False)
 
-    txt_summary_path = save_txt_summary(
-        summary,
-        unique_texts,
-        grouped_objects,
-        risk_analysis
-    )
-
-    deduplicated_texts_path = save_deduplicated_texts(unique_texts)
-
-    print("\n" + "=" * 70)
-    print("ПЗ8 ГОТОВО")
-    print("=" * 70)
-
-    print(f"Папка результатов ПЗ8: {RUN_DIR}")
-    print(f"Итоговый JSON: {json_path}")
-    print(f"Итоговый Excel: {excel_path}")
-    print(f"Текстовая сводка: {txt_summary_path}")
-    print(f"Очищенные тексты: {deduplicated_texts_path}")
-
-    print("\nАнализ риска:")
-    print(f"Признаки оружия: {risk_analysis.get('weapon_detected')}")
-    print(f"Признаки насилия: {risk_analysis.get('violence_detected')}")
-    print(f"Уровень риска: {risk_analysis.get('risk_level')}")
-    print(f"Комментарий: {risk_analysis.get('final_comment')}")
-
-    print("\nКраткая статистика:")
-
-    for key, value in summary.items():
-        print(f"{key}: {value}")
+    return excel_path
 
 
 # =====================================================
-# ОСНОВНАЯ ПРОГРАММА
+# MAIN
 # =====================================================
 
 def main():
     print("=" * 70)
-    print("ПЗ8: постобработка и итоговый анализ риска")
+    print("ПЗ8: финальный JSON в формате TIME_BASED_REPORT")
     print("=" * 70)
 
-    print("\nСкрипт соберёт результаты ПЗ3–ПЗ7 в единый JSON, Excel и TXT.")
-    print("Дополнительно будет выполнен анализ признаков оружия и насилия.")
-    print("Можно нажимать Enter, чтобы выбирать последние запуски.")
+    print("\nЭтот скрипт формирует один главный JSON:")
+    print("final_analysis_report.json")
+    print("\nФормат JSON:")
+    print("report_type + source_info + detections")
+    print(f"\nФильтр video-срабатываний: confidence >= {MIN_VIDEO_CONFIDENCE}")
+
+    taxonomy = load_risk_taxonomy()
+    keyword_dict = build_keyword_dict(taxonomy)
+
+    print("\nТаксономия риска:")
+    print(f"taxonomy_name: {taxonomy.get('taxonomy_name')}")
+    print(f"taxonomy_version: {taxonomy.get('taxonomy_version')}")
+    print(f"categories: {list(keyword_dict.keys())}")
 
     selected_runs = choose_all_runs()
 
-    print("\nЗагружаем данные...")
+    print("\nЗагружаем результаты ПЗ3–ПЗ7...")
 
     pz3_data = load_pz3_results(selected_runs.get("pz3_run"))
     pz4_data = load_pz4_results(selected_runs.get("pz4_run"))
@@ -1344,56 +1069,67 @@ def main():
     pz6_data = load_pz6_results(selected_runs.get("pz6_run"))
     pz7_data = load_pz7_results(selected_runs.get("pz7_run"))
 
-    print("Выполняем постобработку текста...")
-    combined_texts, unique_texts = build_combined_texts(pz3_data, pz4_data)
+    video_path = get_video_path_from_data(pz4_data, pz5_data)
+    metadata = get_video_metadata(video_path)
 
-    print("Выполняем группировку YOLO-объектов...")
-    grouped_objects = group_yolo_objects(
-        pz5_data.get("yolo_objects", []),
-        max_gap_seconds=3.0
+    fps = safe_float(metadata.get("fps", DEFAULT_FPS), DEFAULT_FPS)
+
+    print("\nМетаданные видео:")
+    print(f"video_path: {video_path}")
+    print(f"fps: {fps}")
+    print(f"frameCount: {metadata.get('frameCount')}")
+    print(f"metadata_source: {metadata.get('metadata_source')}")
+
+    print("\nФормируем detections...")
+
+    detections = build_all_detections(
+        pz3_data=pz3_data,
+        pz4_data=pz4_data,
+        pz5_data=pz5_data,
+        pz6_data=pz6_data,
+        pz7_data=pz7_data,
+        fps=fps,
+        keyword_dict=keyword_dict
     )
 
-    print("Объединяем YOLO, ResNet и LLM...")
-    enriched_objects = build_enriched_objects(
-        pz5_data.get("yolo_objects", []),
-        pz6_data.get("resnet_top1", []),
-        pz7_data.get("llm_results", [])
+    source_info = build_source_info(
+        pz4_data=pz4_data,
+        pz5_data=pz5_data,
+        detections=detections,
+        metadata=metadata
     )
 
-    print("Выполняем анализ признаков оружия и насилия...")
-    risk_analysis = build_risk_analysis(
-        unique_texts,
-        pz5_data,
-        pz6_data,
-        pz7_data
+    json_path = save_final_json(
+        source_info=source_info,
+        detections=detections
     )
 
-    summary = build_final_summary(
-        pz3_data,
-        pz4_data,
-        pz5_data,
-        pz6_data,
-        pz7_data,
-        unique_texts,
-        grouped_objects,
-        enriched_objects,
-        risk_analysis
+    excel_path = save_excel_preview(
+        source_info=source_info,
+        detections=detections
     )
 
-    save_all_results(
-        selected_runs,
-        pz3_data,
-        pz4_data,
-        pz5_data,
-        pz6_data,
-        pz7_data,
-        combined_texts,
-        unique_texts,
-        grouped_objects,
-        enriched_objects,
-        risk_analysis,
-        summary
-    )
+    print("\n" + "=" * 70)
+    print("ПЗ8 ГОТОВО")
+    print("=" * 70)
+
+    print(f"Папка результата: {RUN_DIR}")
+    print(f"Главный JSON: {json_path}")
+    print(f"Excel для проверки: {excel_path}")
+
+    print("\nКраткая статистика:")
+    print(f"frameCount: {source_info.get('frameCount')}")
+    print(f"fps: {source_info.get('fps')}")
+    print(f"video_duration_formatted: {source_info.get('video_duration_formatted')}")
+    print(f"detections: {len(detections)}")
+
+    if detections:
+        print("\nПервые detections:")
+        for item in detections[:5]:
+            print(item)
+    else:
+        print("\nРиск-срабатывания не найдены.")
+        print("Если на видео точно есть оружие, значит предыдущие модули не передали признаки в текст/YOLO/ResNet/LLM.")
 
 
 if __name__ == "__main__":
