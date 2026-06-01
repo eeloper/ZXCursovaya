@@ -1,49 +1,56 @@
+import base64
 import json
 import re
-import time
 import shutil
-import pandas as pd
-import ollama
 from pathlib import Path
 from datetime import datetime
 
+import pandas as pd
+import requests
+
+from project_config import BASE_DIR, load_run_config, RUN_CONFIG_PATH
+
 
 # =====================================================
-# НАСТРОЙКА ПАПОК
+# НАСТРОЙКИ
 # =====================================================
-
-BASE_DIR = Path(__file__).resolve().parent
-
-# Результаты ПЗ5, где лежат вырезанные YOLO-объекты
-PZ5_RESULT_ROOT = BASE_DIR / "results" / "pz5_yolo"
-
-# Кадры из ПЗ2, запасной вариант
-PZ2_FRAME_ROOT = BASE_DIR / "results" / "pz2_frames" / "FRAME_FOLDER"
-
-# Результаты ПЗ7
-RESULT_ROOT = BASE_DIR / "results" / "pz7_llm"
-
-RUN_TIMESTAMP = datetime.now().strftime("%Y%m%d_%H%M%S")
-RUN_DIR = RESULT_ROOT / f"llm_run_{RUN_TIMESTAMP}"
-
-INPUT_IMAGES_DIR = RUN_DIR / "input_images"
-
-RESULT_ROOT.mkdir(parents=True, exist_ok=True)
-RUN_DIR.mkdir(parents=True, exist_ok=True)
-INPUT_IMAGES_DIR.mkdir(parents=True, exist_ok=True)
 
 SUPPORTED_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".bmp", ".webp"]
+
+OLLAMA_URL = "http://localhost:11434/api/generate"
+
+DEFAULT_MODEL = "moondream"
+DEFAULT_MAX_IMAGES = 5
+
+TAXONOMY_PATH = BASE_DIR / "risk_taxonomy.json"
 
 
 # =====================================================
 # ОБЩИЕ ФУНКЦИИ
 # =====================================================
 
+def save_run_config(config):
+    with open(RUN_CONFIG_PATH, "w", encoding="utf-8") as file:
+        json.dump(config, file, ensure_ascii=False, indent=4)
+
+
+def clear_folder(folder_path):
+    folder_path = Path(folder_path)
+
+    if folder_path.exists():
+        shutil.rmtree(folder_path)
+
+    folder_path.mkdir(parents=True, exist_ok=True)
+
+
 def seconds_to_time(seconds):
-    if seconds is None:
+    if seconds is None or seconds == "":
         return ""
 
-    seconds = int(seconds)
+    try:
+        seconds = int(float(seconds))
+    except Exception:
+        return ""
 
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
@@ -52,18 +59,58 @@ def seconds_to_time(seconds):
     return f"{hours:02d}:{minutes:02d}:{sec:02d}"
 
 
+def clean_text(text):
+    if text is None:
+        return ""
+
+    text = str(text)
+    text = text.replace("\n", " ")
+    text = text.replace("\r", " ")
+    text = re.sub(r"\s+", " ", text)
+    text = text.strip()
+
+    return text
+
+
+def normalize_text(text):
+    if text is None:
+        return ""
+
+    text = str(text).lower()
+    text = text.replace("ё", "е")
+
+    replacements = {
+        "a": "а",
+        "c": "с",
+        "e": "е",
+        "o": "о",
+        "p": "р",
+        "x": "х",
+        "y": "у",
+        "k": "к",
+        "m": "м",
+        "t": "т",
+        "b": "в",
+        "h": "н",
+        "u": "и",
+        "i": "и",
+    }
+
+    for latin, cyrillic in replacements.items():
+        text = text.replace(latin, cyrillic)
+
+    text = re.sub(r"[^a-zа-я0-9 ,]", " ", text, flags=re.IGNORECASE)
+    text = re.sub(r"\s+", " ", text)
+    text = text.strip()
+
+    return text
+
+
 def extract_time_from_filename(filename):
-    """
-    Достаёт время из имени файла, если оно есть.
-
-    Пример:
-    video_frame_00005_time_00005000ms_object_000_person.jpg
-    """
-
     match = re.search(r"time_(\d+)ms", filename)
 
     if not match:
-        return None, ""
+        return 0.0, "00:00:00"
 
     milliseconds = int(match.group(1))
     seconds = milliseconds / 1000
@@ -72,292 +119,313 @@ def extract_time_from_filename(filename):
 
 
 def extract_frame_number_from_filename(filename):
-    """
-    Достаёт номер кадра из имени файла.
-    """
-
-    match = re.search(r"_frame_(\d+)", filename)
+    match = re.search(r"frame_(\d+)", filename)
 
     if not match:
-        return None
+        return 0
 
     return int(match.group(1))
 
 
-def ask_int(message, default_value):
-    user_input = input(message).strip()
+def extract_source_frame_number_from_filename(filename):
+    match = re.search(r"source_(\d+)", filename)
+
+    if not match:
+        return 0
+
+    return int(match.group(1))
+
+
+def extract_yolo_class_from_filename(filename):
+    """
+    Пример:
+    object_000013_frame_000009_source_000263_time_00009055ms_person.jpg
+
+    Вернёт:
+    person
+    """
+
+    stem = Path(filename).stem
+
+    match = re.search(r"time_\d+ms_(.+)$", stem)
+
+    if match:
+        return match.group(1)
+
+    parts = stem.split("_")
+
+    if parts:
+        return parts[-1]
+
+    return ""
+
+
+def get_image_files(folder_path):
+    folder_path = Path(folder_path)
+
+    if not folder_path.exists():
+        return []
+
+    files = [
+        file for file in folder_path.iterdir()
+        if file.is_file() and file.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS
+    ]
+
+    return sorted(files)
+
+
+def image_to_base64(image_path):
+    with open(image_path, "rb") as file:
+        encoded = base64.b64encode(file.read()).decode("utf-8")
+
+    return encoded
+
+
+# =====================================================
+# РИСК-ТАКСОНОМИЯ
+# =====================================================
+
+def load_risk_taxonomy():
+    if not TAXONOMY_PATH.exists():
+        print("\nФайл risk_taxonomy.json не найден.")
+        print("Проверь, что он лежит в корне проекта.")
+        return {
+            "taxonomy_name": "missing_taxonomy",
+            "taxonomy_version": "0.0",
+            "categories": {}
+        }
+
+    try:
+        with open(TAXONOMY_PATH, "r", encoding="utf-8") as file:
+            taxonomy = json.load(file)
+
+        return taxonomy
+
+    except Exception as error:
+        print("\nОшибка чтения risk_taxonomy.json:")
+        print(error)
+
+        return {
+            "taxonomy_name": "broken_taxonomy",
+            "taxonomy_version": "0.0",
+            "categories": {}
+        }
+
+
+def flatten_terms(term_block):
+    terms = []
+
+    if isinstance(term_block, list):
+        return term_block
+
+    if isinstance(term_block, dict):
+        for values in term_block.values():
+            if isinstance(values, list):
+                terms.extend(values)
+
+    return terms
+
+
+def build_keyword_dict(taxonomy):
+    keyword_dict = {}
+
+    categories = taxonomy.get("categories", {})
+
+    for category_name, category_data in categories.items():
+        terms = []
+
+        terms.extend(flatten_terms(category_data.get("strong_terms", {})))
+        terms.extend(flatten_terms(category_data.get("weak_terms", {})))
+        terms.extend(category_data.get("model_labels", []))
+
+        clean_terms = []
+
+        for term in terms:
+            term = clean_text(term)
+
+            if term and term not in clean_terms:
+                clean_terms.append(term)
+
+        keyword_dict[category_name] = clean_terms
+
+    return keyword_dict
+
+
+def detect_risk_flags_from_taxonomy(text, yolo_class, keyword_dict):
+    text_norm = normalize_text(text)
+    yolo_class_norm = normalize_text(yolo_class)
+
+    combined = f"{text_norm} {yolo_class_norm}"
+
+    detected_categories = []
+
+    for category_name, keywords in keyword_dict.items():
+        for keyword in keywords:
+            keyword_norm = normalize_text(keyword)
+
+            if keyword_norm and keyword_norm in combined:
+                detected_categories.append(category_name)
+                break
+
+    detected_categories = list(sorted(set(detected_categories)))
+
+    if not detected_categories:
+        return "none"
+
+    return ",".join(detected_categories)
+
+
+# =====================================================
+# ВЫБОР МОДЕЛИ И РЕЖИМА
+# =====================================================
+
+def choose_llm_model():
+    print("\nВыберите режим LLM-анализа:")
+    print("1 — быстрый режим: moondream")
+    print("2 — стандартный режим: llava:7b")
+    print("3 — качественный режим: qwen2.5vl")
+    print("4 — ввести модель вручную")
+    print("Enter — быстрый режим: moondream")
+
+    choice = input("\nВведите номер: ").strip()
+
+    if choice == "" or choice == "1":
+        return "moondream", "fast"
+
+    if choice == "2":
+        return "llava:7b", "balanced"
+
+    if choice == "3":
+        return "qwen2.5vl", "quality"
+
+    if choice == "4":
+        model_name = input("Введите название модели Ollama: ").strip()
+
+        if model_name:
+            return model_name, "custom"
+
+    print("Неверный выбор. Используется moondream.")
+    return DEFAULT_MODEL, "fast"
+
+
+def choose_max_images(total_images):
+    print("\nСколько изображений отправить в LLM?")
+    print("Для быстрой демонстрации лучше 3–5.")
+    print("Enter — 5")
+
+    user_input = input("\nКоличество изображений: ").strip()
 
     if user_input == "":
-        return default_value
+        return min(DEFAULT_MAX_IMAGES, total_images)
 
     try:
         value = int(user_input)
 
         if value <= 0:
-            print("Значение должно быть больше 0. Используется значение по умолчанию.")
-            return default_value
+            print("Количество должно быть больше 0. Используется 5.")
+            return min(DEFAULT_MAX_IMAGES, total_images)
 
-        return value
+        return min(value, total_images)
 
     except ValueError:
-        print("Введено некорректное значение. Используется значение по умолчанию.")
-        return default_value
+        print("Некорректное значение. Используется 5.")
+        return min(DEFAULT_MAX_IMAGES, total_images)
 
 
 # =====================================================
-# ПРОВЕРКА OLLAMA
+# OLLAMA
 # =====================================================
 
 def check_ollama_available():
-    """
-    Проверяет, запущена ли Ollama.
-    """
-
     try:
-        ollama.list()
-        return True
+        response = requests.get("http://localhost:11434/api/tags", timeout=5)
+        return response.status_code == 200
     except Exception:
-        print("\nOllama не отвечает.")
-        print("Проверь, что Ollama установлена и запущена.")
-        print("Можно попробовать открыть отдельный терминал и выполнить:")
-        print("ollama serve")
         return False
 
 
-def choose_ollama_model():
-    """
-    Выбор локальной vision-модели.
-    По умолчанию используется Qwen2.5-VL.
-    """
+def build_prompt(yolo_class, taxonomy):
+    categories = taxonomy.get("categories", {})
+    category_names = list(categories.keys())
 
-    print("\nВыберите LLM-модель:")
-    print("1 — qwen2.5vl:latest, основной вариант")
-    print("2 — llava:7b, запасной вариант")
-    print("3 — ввести название модели вручную")
+    category_text = ", ".join(category_names) if category_names else "weapon, violence"
 
-    choice = input("\nВведите 1, 2 или 3 (Enter = qwen2.5vl:latest): ").strip()
+    prompt = f"""
+You are an image moderation assistant.
 
-    if choice == "":
-        return "qwen2.5vl:latest"
+The image is an object crop extracted from a video by YOLO.
+YOLO class hint: "{yolo_class}"
 
-    if choice == "1":
-        return "qwen2.5vl:latest"
+The project uses a risk taxonomy with these categories:
+{category_text}
 
-    if choice == "2":
-        return "llava:7b"
+Analyze the image and return ONLY valid JSON.
+Do not write explanations outside JSON.
+Do not use markdown.
+Do not use ```json.
 
-    if choice == "3":
-        model_name = input("Введите название модели: ").strip()
+Use this exact JSON schema:
 
-        if model_name:
-            return model_name
+{{
+  "short_description_ru": "brief description in Russian",
+  "scene_type": "object/person/weapon/violence/unknown",
+  "main_objects_text": "main visible objects, comma-separated",
+  "people_present": "yes/no/unknown",
+  "text_or_symbols_visible": "visible text or symbols, or none",
+  "visual_context_ru": "short visual context in Russian",
+  "possible_risk_flags": "weapon/violence/weapon,violence/none",
+  "moderation_comment_ru": "brief moderation comment in Russian"
+}}
 
-    print("Неверный выбор. Используется qwen2.5vl:latest.")
-    return "qwen2.5vl:latest"
-
-
-# =====================================================
-# ВЫБОР ИСТОЧНИКА ИЗОБРАЖЕНИЙ
-# =====================================================
-
-def choose_source_mode():
-    print("\nЧто отправлять в LLM?")
-    print("1 — вырезанные объекты из ПЗ5 object_crops")
-    print("2 — целые кадры из ПЗ2 FRAME_FOLDER")
-
-    choice = input("\nВведите 1 или 2 (Enter = 1): ").strip()
-
-    if choice == "":
-        choice = "1"
-
-    if choice == "1":
-        return "pz5_object_crops"
-
-    if choice == "2":
-        return "pz2_full_frames"
-
-    print("Неверный выбор. Используются object_crops из ПЗ5.")
-    return "pz5_object_crops"
-
-
-def choose_pz5_object_crops_folder():
-    """
-    Выбор папки object_crops из результатов ПЗ5.
-    """
-
-    if not PZ5_RESULT_ROOT.exists():
-        print("Папка результатов ПЗ5 не найдена:")
-        print(PZ5_RESULT_ROOT)
-        return None
-
-    yolo_runs = [
-        folder for folder in sorted(PZ5_RESULT_ROOT.iterdir())
-        if folder.is_dir() and folder.name.startswith("yolo_run_")
-    ]
-
-    if not yolo_runs:
-        print("В results/pz5_yolo нет запусков yolo_run.")
-        return None
-
-    available_runs = []
-
-    for run_folder in yolo_runs:
-        crops_folder = run_folder / "object_crops"
-
-        if not crops_folder.exists():
-            continue
-
-        images = [
-            file for file in crops_folder.iterdir()
-            if file.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS
-        ]
-
-        if images:
-            available_runs.append((run_folder, crops_folder, len(images)))
-
-    if not available_runs:
-        print("В запусках ПЗ5 не найдено object_crops с изображениями.")
-        return None
-
-    print("\nНайдены папки object_crops из ПЗ5:")
-
-    for index, item in enumerate(available_runs, start=1):
-        run_folder, crops_folder, image_count = item
-        print(f"{index}. {run_folder.name} — объектов: {image_count}")
-
-    choice = input("\nВведите номер запуска ПЗ5: ").strip()
-
-    try:
-        choice_number = int(choice)
-
-        if 1 <= choice_number <= len(available_runs):
-            return available_runs[choice_number - 1][1]
-
-        print("Неверный номер.")
-        return None
-
-    except ValueError:
-        print("Введено не число.")
-        return None
-
-
-def choose_pz2_frames_folder():
-    """
-    Выбор папки с целыми кадрами из ПЗ2.
-    """
-
-    if not PZ2_FRAME_ROOT.exists():
-        print("Папка кадров ПЗ2 не найдена:")
-        print(PZ2_FRAME_ROOT)
-        return None
-
-    frame_folders = [
-        folder for folder in sorted(PZ2_FRAME_ROOT.iterdir())
-        if folder.is_dir()
-    ]
-
-    if not frame_folders:
-        print("В FRAME_FOLDER нет папок с кадрами.")
-        return None
-
-    print("\nНайдены папки с кадрами ПЗ2:")
-
-    for index, folder in enumerate(frame_folders, start=1):
-        images = [
-            file for file in folder.iterdir()
-            if file.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS
-        ]
-
-        print(f"{index}. {folder.name} — кадров: {len(images)}")
-
-    choice = input("\nВведите номер папки с кадрами: ").strip()
-
-    try:
-        choice_number = int(choice)
-
-        if 1 <= choice_number <= len(frame_folders):
-            return frame_folders[choice_number - 1]
-
-        print("Неверный номер.")
-        return None
-
-    except ValueError:
-        print("Введено не число.")
-        return None
-
-
-def choose_images_folder():
-    source_mode = choose_source_mode()
-
-    if source_mode == "pz5_object_crops":
-        images_folder = choose_pz5_object_crops_folder()
-    else:
-        images_folder = choose_pz2_frames_folder()
-
-    return source_mode, images_folder
-
-
-# =====================================================
-# ПРОМПТ ДЛЯ LLM
-# =====================================================
-
-def build_prompt():
-    """
-    Промпт просит модель вернуть строго JSON.
-    Это нужно, чтобы результат потом можно было использовать в общем пайплайне.
-    """
-
-    prompt = """
-Ты анализируешь изображение из видеоролика для системы автоматического анализа видеоконтента.
-
-Нужно внимательно описать, что видно на изображении, и вернуть результат строго в JSON.
-
-Не добавляй Markdown.
-Не добавляй текст до или после JSON.
-Не используй ```json.
-
-Формат ответа:
-
-{
-  "short_description_ru": "краткое описание изображения на русском языке",
-  "scene_type": "человек / помещение / улица / предмет / экран / транспорт / животное / документ / другое",
-  "main_objects": [
-    {
-      "object_name_ru": "название объекта на русском",
-      "object_name_en": "название объекта на английском",
-      "visual_confidence": "низкая / средняя / высокая"
-    }
-  ],
-  "people_present": "да / нет / неясно",
-  "text_or_symbols_visible": "описание видимого текста, символов, логотипов или надписей",
-  "visual_context_ru": "что происходит на изображении, если это можно понять",
-  "possible_risk_flags": [
-    "нейтрально"
-  ],
-  "moderation_comment_ru": "краткий комментарий о визуальных признаках. Если опасных или подозрительных признаков нет, написать нейтрально."
-}
-
-Важно:
-- Не делай юридический вывод.
-- Не утверждай, что контент запрещён.
-- Не придумывай то, чего нет на изображении.
-- Только опиши визуальные признаки.
-- Если изображение маленькое, размытое или неясное, так и напиши.
-- Если признаков риска нет, в possible_risk_flags укажи только 'нейтрально'.
+Rules:
+- If the image contains a risk marker related to weapons, use possible_risk_flags = "weapon".
+- If the image contains a risk marker related to violence, use possible_risk_flags = "violence".
+- If both are present, use possible_risk_flags = "weapon,violence".
+- If there are no visible risk signs, use possible_risk_flags = "none".
+- If you are uncertain, write "unknown" in unclear fields, but still return valid JSON.
 """
     return prompt.strip()
 
 
-def extract_json_from_response(text):
-    """
-    Достаёт JSON из ответа модели.
-    Иногда модель добавляет лишний текст — пробуем аккуратно вытащить JSON.
-    """
+def call_ollama_vision(model_name, image_path, yolo_class, taxonomy):
+    image_b64 = image_to_base64(image_path)
 
+    payload = {
+        "model": model_name,
+        "prompt": build_prompt(yolo_class, taxonomy),
+        "images": [image_b64],
+        "stream": False,
+        "options": {
+            "temperature": 0.1
+        }
+    }
+
+    response = requests.post(
+        OLLAMA_URL,
+        json=payload,
+        timeout=300
+    )
+
+    if response.status_code != 200:
+        raise RuntimeError(
+            f"Ollama вернула ошибку {response.status_code}: {response.text}"
+        )
+
+    data = response.json()
+
+    return data.get("response", "")
+
+
+# =====================================================
+# ПАРСИНГ И НОРМАЛИЗАЦИЯ ОТВЕТА LLM
+# =====================================================
+
+def extract_json_from_text(text):
     if text is None:
-        return None
+        return {}
 
-    text = text.strip()
+    text = str(text).strip()
+
     text = text.replace("```json", "")
     text = text.replace("```", "")
     text = text.strip()
@@ -367,320 +435,435 @@ def extract_json_from_response(text):
     except Exception:
         pass
 
-    start = text.find("{")
-    end = text.rfind("}")
+    match = re.search(r"\{.*\}", text, flags=re.DOTALL)
 
-    if start != -1 and end != -1 and end > start:
-        json_text = text[start:end + 1]
+    if match:
+        json_text = match.group(0)
 
         try:
             return json.loads(json_text)
         except Exception:
-            return None
+            return {}
 
-    return None
+    return {}
 
 
-def analyze_image_with_ollama(model_name, image_path):
-    """
-    Отправляет изображение в локальную Ollama vision-модель.
-    """
+def guess_scene_type(yolo_class, risk_flags):
+    yolo_class = clean_text(yolo_class).lower()
 
-    prompt = build_prompt()
+    if "weapon" in risk_flags:
+        return "weapon"
 
-    try:
-        response = ollama.chat(
-            model=model_name,
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt,
-                    "images": [str(image_path)]
-                }
-            ],
-            options={
-                "temperature": 0
-            }
-        )
+    if "violence" in risk_flags:
+        return "violence"
 
-        if isinstance(response, dict):
-            response_text = response.get("message", {}).get("content", "")
-        else:
-            response_text = response.message.content
+    if yolo_class in ["person", "man", "woman", "boy", "girl"]:
+        return "person"
 
-    except Exception as error:
-        return {
-            "success": False,
-            "raw_response": "",
-            "parsed_json": None,
-            "error": str(error)
-        }
+    if yolo_class:
+        return "object"
 
-    parsed_json = extract_json_from_response(response_text)
+    return "unknown"
 
-    if parsed_json is None:
-        return {
-            "success": False,
-            "raw_response": response_text,
-            "parsed_json": None,
-            "error": "Не удалось разобрать JSON из ответа модели"
-        }
+
+def build_fallback_result(raw_response, yolo_class, keyword_dict):
+    raw_response = clean_text(raw_response)
+    yolo_class = clean_text(yolo_class)
+
+    risk_flags = detect_risk_flags_from_taxonomy(
+        text=raw_response,
+        yolo_class=yolo_class,
+        keyword_dict=keyword_dict
+    )
+
+    scene_type = guess_scene_type(yolo_class, risk_flags)
+
+    if raw_response:
+        description = raw_response
+    else:
+        description = f"Обнаружен объект класса {yolo_class}" if yolo_class else "Описание изображения не получено"
+
+    people_present = "yes" if yolo_class.lower() == "person" else "unknown"
 
     return {
-        "success": True,
-        "raw_response": response_text,
-        "parsed_json": parsed_json,
-        "error": ""
+        "short_description_ru": description,
+        "scene_type": scene_type,
+        "main_objects_text": yolo_class if yolo_class else "unknown",
+        "people_present": people_present,
+        "text_or_symbols_visible": "none",
+        "visual_context_ru": description,
+        "possible_risk_flags": risk_flags,
+        "moderation_comment_ru": "Требуется ручная проверка, если объект относится к риск-маркерам."
     }
+
+
+def normalize_possible_risk_flags(value, raw_response, yolo_class, keyword_dict):
+    value = clean_text(value).lower()
+    value = value.replace(" ", "")
+
+    allowed = [
+        "weapon",
+        "violence",
+        "weapon,violence",
+        "violence,weapon",
+        "none"
+    ]
+
+    if value in allowed:
+        if value == "violence,weapon":
+            return "weapon,violence"
+
+        return value
+
+    return detect_risk_flags_from_taxonomy(
+        text=raw_response,
+        yolo_class=yolo_class,
+        keyword_dict=keyword_dict
+    )
+
+
+def normalize_llm_result(raw_response, yolo_class, keyword_dict):
+    parsed = extract_json_from_text(raw_response)
+
+    if not parsed:
+        return build_fallback_result(raw_response, yolo_class, keyword_dict)
+
+    result = {
+        "short_description_ru": clean_text(parsed.get("short_description_ru", "")),
+        "scene_type": clean_text(parsed.get("scene_type", "")),
+        "main_objects_text": clean_text(parsed.get("main_objects_text", "")),
+        "people_present": clean_text(parsed.get("people_present", "")),
+        "text_or_symbols_visible": clean_text(parsed.get("text_or_symbols_visible", "")),
+        "visual_context_ru": clean_text(parsed.get("visual_context_ru", "")),
+        "possible_risk_flags": normalize_possible_risk_flags(
+            parsed.get("possible_risk_flags", ""),
+            raw_response,
+            yolo_class,
+            keyword_dict
+        ),
+        "moderation_comment_ru": clean_text(parsed.get("moderation_comment_ru", ""))
+    }
+
+    fallback = build_fallback_result(raw_response, yolo_class, keyword_dict)
+
+    for key, value in result.items():
+        if value == "":
+            result[key] = fallback[key]
+
+    return result
+
+
+# =====================================================
+# ОТБОР ИЗОБРАЖЕНИЙ
+# =====================================================
+
+def select_images_for_llm(object_crops_dir, max_images):
+    image_files = get_image_files(object_crops_dir)
+
+    if not image_files:
+        return []
+
+    if max_images >= len(image_files):
+        return image_files
+
+    if max_images == 1:
+        return [image_files[0]]
+
+    step = max(1, len(image_files) // max_images)
+    selected = image_files[::step][:max_images]
+
+    return selected
 
 
 # =====================================================
 # ОБРАБОТКА ИЗОБРАЖЕНИЙ
 # =====================================================
 
-def process_images_with_llm(images_folder, source_mode, model_name, max_images):
-    image_files = [
-        file for file in sorted(images_folder.iterdir())
-        if file.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS
-    ]
-
-    if not image_files:
-        print("В выбранной папке нет изображений.")
-        return []
-
-    if max_images > 0:
-        image_files = image_files[:max_images]
-
-    print(f"\nБудет обработано изображений: {len(image_files)}")
-    print(f"Модель: {model_name}")
-
+def analyze_images_with_llm(image_files, model_name, taxonomy, keyword_dict):
     rows = []
 
     for index, image_path in enumerate(image_files, start=1):
         print(f"LLM-анализ {index}/{len(image_files)}: {image_path.name}")
 
-        copied_image_path = INPUT_IMAGES_DIR / image_path.name
+        time_seconds, time_formatted = extract_time_from_filename(image_path.name)
+        frame_number = extract_frame_number_from_filename(image_path.name)
+        source_frame_number = extract_source_frame_number_from_filename(image_path.name)
+        yolo_class = extract_yolo_class_from_filename(image_path.name)
 
         try:
-            shutil.copy2(image_path, copied_image_path)
-        except Exception:
-            copied_image_path = ""
+            raw_response = call_ollama_vision(
+                model_name=model_name,
+                image_path=image_path,
+                yolo_class=yolo_class,
+                taxonomy=taxonomy
+            )
 
-        frame_number = extract_frame_number_from_filename(image_path.name)
-        time_seconds, time_formatted = extract_time_from_filename(image_path.name)
+            normalized = normalize_llm_result(
+                raw_response=raw_response,
+                yolo_class=yolo_class,
+                keyword_dict=keyword_dict
+            )
 
-        result = analyze_image_with_ollama(
-            model_name,
-            image_path
-        )
+            success = True
+            error = ""
 
-        parsed = result.get("parsed_json") or {}
+        except Exception as error_text:
+            raw_response = ""
 
-        main_objects = parsed.get("main_objects", [])
+            normalized = build_fallback_result(
+                raw_response="",
+                yolo_class=yolo_class,
+                keyword_dict=keyword_dict
+            )
 
-        if isinstance(main_objects, list):
-            main_objects_text = "; ".join([
-                str(item.get("object_name_ru", ""))
-                for item in main_objects
-                if isinstance(item, dict)
-            ])
-        else:
-            main_objects_text = str(main_objects)
-
-        risk_flags = parsed.get("possible_risk_flags", [])
-
-        if isinstance(risk_flags, list):
-            risk_flags_text = "; ".join([str(item) for item in risk_flags])
-        else:
-            risk_flags_text = str(risk_flags)
+            success = False
+            error = str(error_text)
 
         rows.append({
             "image_file": image_path.name,
             "image_path": str(image_path),
-            "copied_image_path": str(copied_image_path),
-            "source_mode": source_mode,
-            "model_name": model_name,
             "frame_number": frame_number,
+            "source_frame_number": source_frame_number,
             "time_seconds": time_seconds,
             "time_formatted": time_formatted,
-            "success": result.get("success"),
-            "short_description_ru": parsed.get("short_description_ru", ""),
-            "scene_type": parsed.get("scene_type", ""),
-            "main_objects_text": main_objects_text,
-            "people_present": parsed.get("people_present", ""),
-            "text_or_symbols_visible": parsed.get("text_or_symbols_visible", ""),
-            "visual_context_ru": parsed.get("visual_context_ru", ""),
-            "possible_risk_flags": risk_flags_text,
-            "moderation_comment_ru": parsed.get("moderation_comment_ru", ""),
-            "raw_response": result.get("raw_response", ""),
-            "error": result.get("error", "")
+            "yolo_class_hint": yolo_class,
+            "success": success,
+            "error": error,
+            "model_name": model_name,
+            "raw_response": raw_response,
+            "short_description_ru": normalized["short_description_ru"],
+            "scene_type": normalized["scene_type"],
+            "main_objects_text": normalized["main_objects_text"],
+            "people_present": normalized["people_present"],
+            "text_or_symbols_visible": normalized["text_or_symbols_visible"],
+            "visual_context_ru": normalized["visual_context_ru"],
+            "possible_risk_flags": normalized["possible_risk_flags"],
+            "moderation_comment_ru": normalized["moderation_comment_ru"]
         })
 
-        time.sleep(0.5)
-
     return rows
+
+
+# =====================================================
+# СВОДКИ
+# =====================================================
+
+def build_scene_summary(rows):
+    scene_counter = {}
+
+    for row in rows:
+        scene_type = row.get("scene_type", "")
+
+        if not scene_type:
+            scene_type = "unknown"
+
+        scene_counter[scene_type] = scene_counter.get(scene_type, 0) + 1
+
+    summary_rows = []
+
+    for scene_type, count in sorted(scene_counter.items()):
+        summary_rows.append({
+            "scene_type": scene_type,
+            "images_count": count
+        })
+
+    return summary_rows
+
+
+def build_risk_summary(rows):
+    risk_counter = {}
+
+    for row in rows:
+        risk_flags = row.get("possible_risk_flags", "")
+
+        if not risk_flags:
+            risk_flags = "unknown"
+
+        risk_counter[risk_flags] = risk_counter.get(risk_flags, 0) + 1
+
+    summary_rows = []
+
+    for risk_flags, count in sorted(risk_counter.items()):
+        summary_rows.append({
+            "possible_risk_flags": risk_flags,
+            "images_count": count
+        })
+
+    return summary_rows
 
 
 # =====================================================
 # СОХРАНЕНИЕ РЕЗУЛЬТАТОВ
 # =====================================================
 
-def build_scene_summary(rows):
-    if not rows:
-        return []
+def save_llm_results(
+    llm_dir,
+    rows,
+    scene_summary_rows,
+    risk_summary_rows,
+    model_name,
+    llm_mode,
+    taxonomy
+):
+    llm_dir = Path(llm_dir)
+    llm_dir.mkdir(parents=True, exist_ok=True)
 
-    df = pd.DataFrame(rows)
-
-    if "scene_type" not in df.columns:
-        return []
-
-    summary_df = (
-        df.groupby("scene_type")
-        .agg(
-            images_count=("scene_type", "count")
-        )
-        .reset_index()
-        .sort_values("images_count", ascending=False)
-    )
-
-    return summary_df.to_dict(orient="records")
-
-
-def build_risk_summary(rows):
-    if not rows:
-        return []
-
-    risk_counter = {}
-
-    for row in rows:
-        risk_text = row.get("possible_risk_flags", "")
-
-        if not risk_text:
-            continue
-
-        flags = [flag.strip() for flag in risk_text.split(";") if flag.strip()]
-
-        for flag in flags:
-            risk_counter[flag] = risk_counter.get(flag, 0) + 1
-
-    summary = [
-        {
-            "risk_flag": flag,
-            "count": count
-        }
-        for flag, count in risk_counter.items()
-    ]
-
-    summary = sorted(summary, key=lambda item: item["count"], reverse=True)
-
-    return summary
-
-
-def save_results(images_folder, source_mode, model_name, max_images, rows):
-    excel_path = RUN_DIR / "llm_image_analysis_results.xlsx"
-    json_path = RUN_DIR / "llm_image_analysis_report.json"
-    summary_txt_path = RUN_DIR / "llm_summary.txt"
-
-    scene_summary = build_scene_summary(rows)
-    risk_summary = build_risk_summary(rows)
+    excel_path = llm_dir / "llm_image_analysis_results.xlsx"
+    json_path = llm_dir / "llm_image_analysis_report.json"
 
     results_df = pd.DataFrame(rows)
-    scene_summary_df = pd.DataFrame(scene_summary)
-    risk_summary_df = pd.DataFrame(risk_summary)
+    scene_summary_df = pd.DataFrame(scene_summary_rows)
+    risk_summary_df = pd.DataFrame(risk_summary_rows)
 
     with pd.ExcelWriter(excel_path, engine="openpyxl") as writer:
         results_df.to_excel(writer, sheet_name="llm_results", index=False)
         scene_summary_df.to_excel(writer, sheet_name="scene_summary", index=False)
         risk_summary_df.to_excel(writer, sheet_name="risk_summary", index=False)
 
-    json_report = {
-        "report_type": "LLM_IMAGE_ANALYSIS_REPORT",
-        "model_provider": "Ollama local vision model",
+    report = {
+        "report_type": "LLM_IMAGE_ANALYSIS",
         "model_name": model_name,
-        "source_mode": source_mode,
-        "images_folder": str(images_folder),
-        "max_images": max_images,
+        "llm_mode": llm_mode,
+        "taxonomy_name": taxonomy.get("taxonomy_name", ""),
+        "taxonomy_version": taxonomy.get("taxonomy_version", ""),
         "processed_images_count": len(rows),
-        "successful_responses": sum(1 for row in rows if row.get("success")),
-        "scene_summary": scene_summary,
-        "risk_summary": risk_summary,
+        "success_count": sum(1 for row in rows if row.get("success") is True),
+        "error_count": sum(1 for row in rows if row.get("success") is False),
         "results": rows,
+        "scene_summary": scene_summary_rows,
+        "risk_summary": risk_summary_rows,
+        "excel_path": str(excel_path),
         "analysis_timestamp": datetime.now().isoformat()
     }
 
     with open(json_path, "w", encoding="utf-8") as file:
-        json.dump(json_report, file, ensure_ascii=False, indent=4)
+        json.dump(report, file, ensure_ascii=False, indent=4)
 
-    with open(summary_txt_path, "w", encoding="utf-8") as file:
-        file.write("ПЗ7. LLM-анализ изображений\n\n")
-        file.write(f"Источник изображений: {images_folder}\n")
-        file.write(f"Модель: {model_name}\n")
-        file.write(f"Обработано изображений: {len(rows)}\n")
-        file.write(f"Успешных ответов: {sum(1 for row in rows if row.get('success'))}\n\n")
-
-        file.write("Краткие описания:\n")
-
-        for row in rows:
-            description = row.get("short_description_ru", "")
-
-            if description:
-                file.write(f"- {row.get('image_file')}: {description}\n")
-
-    print("\nГотово.")
-    print(f"Папка результатов ПЗ7: {RUN_DIR}")
-    print(f"Excel-таблица: {excel_path}")
-    print(f"JSON-отчёт: {json_path}")
-    print(f"Краткая сводка TXT: {summary_txt_path}")
-    print(f"Копии входных изображений: {INPUT_IMAGES_DIR}")
-
-    print("\nСтатистика:")
-    print(f"Обработано изображений: {len(rows)}")
-    print(f"Успешных ответов LLM: {sum(1 for row in rows if row.get('success'))}")
+    return {
+        "excel_path": excel_path,
+        "json_path": json_path
+    }
 
 
 # =====================================================
-# ОСНОВНАЯ ПРОГРАММА
+# MAIN
 # =====================================================
 
 def main():
     print("=" * 70)
-    print("ПЗ7: распознавание и описание объектов с помощью LLM")
+    print("ПЗ7: LLM-анализ изображений через Ollama")
     print("=" * 70)
 
-    print("\nИспользуется локальная vision-LLM через Ollama.")
-    print("Основная модель по умолчанию: qwen2.5vl:latest")
-    print("API-ключи не требуются.")
+    try:
+        config = load_run_config()
+    except Exception as error:
+        print("\nНе удалось загрузить run_config.json.")
+        print("Сначала запусти main.py и выполни ПЗ5.")
+        print(error)
+        return
+
+    taxonomy = load_risk_taxonomy()
+    keyword_dict = build_keyword_dict(taxonomy)
+
+    print("\nТаксономия риска:")
+    print(f"taxonomy_name: {taxonomy.get('taxonomy_name')}")
+    print(f"taxonomy_version: {taxonomy.get('taxonomy_version')}")
+    print(f"categories: {list(keyword_dict.keys())}")
+
+    object_crops_dir = Path(config["object_crops_dir"])
+    llm_dir = Path(config["llm_dir"])
+
+    if not object_crops_dir.exists():
+        print("\nПапка object_crops не найдена:")
+        print(object_crops_dir)
+        return
+
+    image_files_all = get_image_files(object_crops_dir)
+
+    if not image_files_all:
+        print("\nВ object_crops нет изображений для LLM:")
+        print(object_crops_dir)
+        return
+
+    print("\nИзображения для LLM берутся из папки:")
+    print(object_crops_dir)
+
+    print("\nРезультаты LLM будут сохранены в папку:")
+    print(llm_dir)
 
     if not check_ollama_available():
+        print("\nOllama не отвечает по адресу:")
+        print("http://localhost:11434")
+        print("\nПроверь, что Ollama запущена.")
+        print("Также проверь, что модель установлена, например:")
+        print("ollama pull moondream")
         return
 
-    model_name = choose_ollama_model()
+    model_name, llm_mode = choose_llm_model()
+    max_images = choose_max_images(len(image_files_all))
 
-    source_mode, images_folder = choose_images_folder()
+    selected_images = select_images_for_llm(
+        object_crops_dir=object_crops_dir,
+        max_images=max_images
+    )
 
-    if images_folder is None:
+    print("\nБудет обработано изображений:")
+    print(len(selected_images))
+
+    clear_folder(llm_dir)
+
+    try:
+        rows = analyze_images_with_llm(
+            image_files=selected_images,
+            model_name=model_name,
+            taxonomy=taxonomy,
+            keyword_dict=keyword_dict
+        )
+
+        scene_summary_rows = build_scene_summary(rows)
+        risk_summary_rows = build_risk_summary(rows)
+
+        saved_paths = save_llm_results(
+            llm_dir=llm_dir,
+            rows=rows,
+            scene_summary_rows=scene_summary_rows,
+            risk_summary_rows=risk_summary_rows,
+            model_name=model_name,
+            llm_mode=llm_mode,
+            taxonomy=taxonomy
+        )
+
+    except Exception as error:
+        print("\nОшибка при выполнении ПЗ7:")
+        print(error)
+
+        config["pz7_status"] = "error"
+        config["pz7_error"] = str(error)
+        config["pz7_finished_at"] = datetime.now().isoformat()
+        save_run_config(config)
+
         return
 
-    max_images = ask_int(
-        "\nСколько изображений обработать? "
-        "(например 10; Enter = 10; 9999 = почти все): ",
-        10
-    )
+    config["llm_dir"] = str(llm_dir)
+    config["llm_model"] = model_name
+    config["llm_mode"] = llm_mode
+    config["llm_taxonomy_name"] = taxonomy.get("taxonomy_name", "")
+    config["llm_taxonomy_version"] = taxonomy.get("taxonomy_version", "")
+    config["llm_processed_images_count"] = len(rows)
+    config["llm_results_path"] = str(saved_paths["excel_path"])
+    config["llm_report_path"] = str(saved_paths["json_path"])
+    config["pz7_status"] = "success"
+    config["pz7_finished_at"] = datetime.now().isoformat()
 
-    rows = process_images_with_llm(
-        images_folder,
-        source_mode,
-        model_name,
-        max_images
-    )
+    save_run_config(config)
 
-    save_results(
-        images_folder,
-        source_mode,
-        model_name,
-        max_images,
-        rows
-    )
+    print("\nПЗ7 завершено успешно.")
+    print(f"Модель: {model_name}")
+    print(f"Режим: {llm_mode}")
+    print(f"Обработано изображений: {len(rows)}")
+    print(f"Excel: {saved_paths['excel_path']}")
+    print(f"JSON: {saved_paths['json_path']}")
+    print("\nrun_config.json обновлён.")
 
 
 if __name__ == "__main__":

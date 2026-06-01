@@ -1,48 +1,48 @@
 import json
+import shutil
 import subprocess
-import pandas as pd
-import whisper
 from pathlib import Path
 from datetime import datetime
 
+import pandas as pd
+import whisper
 
-# =====================================================
-# НАСТРОЙКА ПАПОК
-# =====================================================
-
-BASE_DIR = Path(__file__).resolve().parent
-
-# Видео берём из папки ПЗ2
-VIDEO_FOLDER = BASE_DIR / "results" / "pz2_frames" / "VIDEO_FOLDER"
-
-# Общая папка результатов ПЗ4
-RESULT_ROOT = BASE_DIR / "results" / "pz4_whisper"
-
-# Каждый запуск сохраняем в отдельную папку
-RUN_TIMESTAMP = datetime.now().strftime("%Y%m%d_%H%M%S")
-RUN_DIR = RESULT_ROOT / f"whisper_run_{RUN_TIMESTAMP}"
-
-AUDIO_DIR = RUN_DIR / "audio"
-TRANSCRIPT_DIR = RUN_DIR / "transcripts"
-
-RESULT_ROOT.mkdir(parents=True, exist_ok=True)
-RUN_DIR.mkdir(parents=True, exist_ok=True)
-AUDIO_DIR.mkdir(parents=True, exist_ok=True)
-TRANSCRIPT_DIR.mkdir(parents=True, exist_ok=True)
-
-SUPPORTED_VIDEO_EXTENSIONS = [".mp4", ".avi", ".mov", ".mkv", ".webm"]
+from project_config import load_run_config, RUN_CONFIG_PATH
 
 
 # =====================================================
-# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+# НАСТРОЙКИ
 # =====================================================
+
+DEFAULT_WHISPER_MODEL = "base"
+
+
+# =====================================================
+# ОБЩИЕ ФУНКЦИИ
+# =====================================================
+
+def save_run_config(config):
+    with open(RUN_CONFIG_PATH, "w", encoding="utf-8") as file:
+        json.dump(config, file, ensure_ascii=False, indent=4)
+
+
+def clear_folder(folder_path):
+    folder_path = Path(folder_path)
+
+    if folder_path.exists():
+        shutil.rmtree(folder_path)
+
+    folder_path.mkdir(parents=True, exist_ok=True)
+
 
 def seconds_to_time(seconds):
-    """
-    Переводит секунды в формат ЧЧ:ММ:СС.
-    """
+    if seconds is None or seconds == "":
+        return ""
 
-    seconds = int(seconds)
+    try:
+        seconds = int(float(seconds))
+    except Exception:
+        return ""
 
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
@@ -51,75 +51,20 @@ def seconds_to_time(seconds):
     return f"{hours:02d}:{minutes:02d}:{sec:02d}"
 
 
-def find_video_files():
-    """
-    Ищет видеофайлы в папке VIDEO_FOLDER.
-    """
-
-    if not VIDEO_FOLDER.exists():
-        return []
-
-    videos = [
-        file for file in sorted(VIDEO_FOLDER.iterdir())
-        if file.suffix.lower() in SUPPORTED_VIDEO_EXTENSIONS
-    ]
-
-    return videos
-
-
-def choose_video():
-    """
-    Даёт пользователю выбрать видео для обработки.
-    """
-
-    videos = find_video_files()
-
-    if not videos:
-        print("В папке VIDEO_FOLDER нет видеофайлов.")
-        print(VIDEO_FOLDER)
-        return None
-
-    print("\nНайдены видеофайлы:")
-
-    for index, video in enumerate(videos, start=1):
-        print(f"{index}. {video.name}")
-
-    choice = input("\nВведите номер видео для обработки: ").strip()
-
-    try:
-        choice_number = int(choice)
-
-        if 1 <= choice_number <= len(videos):
-            return videos[choice_number - 1]
-
-        print("Неверный номер видео.")
-        return None
-
-    except ValueError:
-        print("Введено не число.")
-        return None
-
-
 def choose_whisper_model():
-    """
-    Позволяет выбрать модель Whisper.
-    """
-
     print("\nВыберите модель Whisper:")
-    print("1 — tiny   быстро, но ниже качество")
-    print("2 — base   средний вариант")
-    print("3 — small  лучше качество, но медленнее")
-    print("4 — medium ещё лучше, но может долго работать")
+    print("1 — tiny, самая быстрая")
+    print("2 — base, стандартный вариант")
+    print("3 — small, точнее, но медленнее")
+    print("4 — medium, ещё точнее, но заметно медленнее")
+    print("Enter — base")
 
-    choice = input("\nВведите 1, 2, 3 или 4 (Enter = base): ").strip()
-
-    if choice == "":
-        return "base"
+    choice = input("\nВведите номер модели: ").strip()
 
     if choice == "1":
         return "tiny"
 
-    if choice == "2":
+    if choice == "2" or choice == "":
         return "base"
 
     if choice == "3":
@@ -128,80 +73,73 @@ def choose_whisper_model():
     if choice == "4":
         return "medium"
 
-    print("Неверный выбор. Используется модель base.")
-    return "base"
-
-
-def choose_language():
-    """
-    Позволяет выбрать язык распознавания.
-    """
-
-    print("\nВыберите язык распознавания:")
-    print("1 — русский")
-    print("2 — английский")
-    print("3 — автоопределение")
-
-    choice = input("\nВведите 1, 2 или 3 (Enter = русский): ").strip()
-
-    if choice == "":
-        return "ru"
-
-    if choice == "1":
-        return "ru"
-
-    if choice == "2":
-        return "en"
-
-    if choice == "3":
-        return None
-
-    print("Неверный выбор. Используется русский язык.")
-    return "ru"
+    print("Неверный выбор. Используется base.")
+    return DEFAULT_WHISPER_MODEL
 
 
 # =====================================================
 # ИЗВЛЕЧЕНИЕ АУДИО
 # =====================================================
 
-def extract_audio_from_video(video_path):
-    """
-    Извлекает аудиодорожку из видео и сохраняет её в WAV.
-    """
+def check_ffmpeg_available():
+    try:
+        result = subprocess.run(
+            ["ffmpeg", "-version"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
 
-    audio_path = AUDIO_DIR / f"{video_path.stem}_audio.wav"
+        return result.returncode == 0
+
+    except Exception:
+        return False
+
+
+def extract_audio_from_video(video_path, audio_path):
+    video_path = Path(video_path)
+    audio_path = Path(audio_path)
+
+    if not video_path.exists():
+        raise FileNotFoundError(f"Видео не найдено: {video_path}")
+
+    audio_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if not check_ffmpeg_available():
+        raise RuntimeError(
+            "FFmpeg не найден. Установи FFmpeg и добавь его в PATH."
+        )
 
     command = [
         "ffmpeg",
         "-y",
-        "-i", str(video_path),
+        "-i",
+        str(video_path),
         "-vn",
-        "-acodec", "pcm_s16le",
-        "-ar", "16000",
-        "-ac", "1",
+        "-acodec",
+        "pcm_s16le",
+        "-ar",
+        "16000",
+        "-ac",
+        "1",
         str(audio_path)
     ]
 
-    print("\nИзвлекаем аудио из видео...")
-    print(f"Видео: {video_path}")
-    print(f"Аудио будет сохранено: {audio_path}")
+    result = subprocess.run(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
 
-    try:
-        subprocess.run(
-            command,
-            check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
+    if result.returncode != 0:
+        raise RuntimeError(
+            "Ошибка при извлечении аудио через FFmpeg:\n"
+            + result.stderr
         )
-    except FileNotFoundError:
-        print("FFmpeg не найден.")
-        print("Установи FFmpeg и перезапусти PyCharm.")
-        return None
-    except subprocess.CalledProcessError:
-        print("Не удалось извлечь аудио из видео.")
-        return None
 
-    print("Аудио успешно извлечено.")
+    if not audio_path.exists():
+        raise RuntimeError("Аудиофайл не был создан.")
+
     return audio_path
 
 
@@ -209,135 +147,182 @@ def extract_audio_from_video(video_path):
 # WHISPER
 # =====================================================
 
-def transcribe_audio(audio_path, model_name, language):
-    """
-    Распознаёт речь из аудиофайла с помощью Whisper.
-    """
-
-    print("\nЗагружаем модель Whisper...")
+def transcribe_audio(audio_path, model_name):
+    print("\nЗагружается модель Whisper...")
     print(f"Модель: {model_name}")
 
     model = whisper.load_model(model_name)
 
-    print("Начинаем распознавание аудио...")
+    print("\nНачинается распознавание аудио...")
 
-    if language is None:
-        result = model.transcribe(str(audio_path))
-    else:
-        result = model.transcribe(
-            str(audio_path),
-            language=language
-        )
+    result = model.transcribe(
+        str(audio_path),
+        language="ru",
+        verbose=False
+    )
 
     return result
+
+
+def build_segments(result):
+    segments = []
+
+    raw_segments = result.get("segments", [])
+
+    for index, segment in enumerate(raw_segments, start=1):
+        start_seconds = float(segment.get("start", 0))
+        end_seconds = float(segment.get("end", 0))
+        text = str(segment.get("text", "")).strip()
+
+        segments.append({
+            "segment_id": index,
+            "start_seconds": round(start_seconds, 3),
+            "end_seconds": round(end_seconds, 3),
+            "start_time": seconds_to_time(start_seconds),
+            "end_time": seconds_to_time(end_seconds),
+            "time_interval": f"{seconds_to_time(start_seconds)} - {seconds_to_time(end_seconds)}",
+            "text": text
+        })
+
+    return segments
 
 
 # =====================================================
 # СОХРАНЕНИЕ РЕЗУЛЬТАТОВ
 # =====================================================
 
-def save_results(video_path, audio_path, whisper_result, model_name, language):
-    """
-    Сохраняет результаты распознавания в TXT, Excel и JSON.
-    """
+def save_whisper_results(whisper_dir, audio_path, model_name, result, segments):
+    whisper_dir = Path(whisper_dir)
+    whisper_dir.mkdir(parents=True, exist_ok=True)
 
-    full_text = whisper_result.get("text", "").strip()
-    segments = whisper_result.get("segments", [])
+    transcript_path = whisper_dir / "input_video_transcript.txt"
+    segments_excel_path = whisper_dir / "input_video_whisper_segments.xlsx"
+    report_json_path = whisper_dir / "input_video_whisper_report.json"
 
-    txt_path = TRANSCRIPT_DIR / f"{video_path.stem}_transcript.txt"
+    full_text = str(result.get("text", "")).strip()
 
-    with open(txt_path, "w", encoding="utf-8") as file:
+    with open(transcript_path, "w", encoding="utf-8") as file:
         file.write(full_text)
 
-    rows = []
+    segments_df = pd.DataFrame(segments)
+    segments_df.to_excel(segments_excel_path, index=False)
 
-    for segment in segments:
-        start = float(segment.get("start", 0))
-        end = float(segment.get("end", 0))
-        text = segment.get("text", "").strip()
-
-        rows.append({
-            "video_name": video_path.name,
-            "audio_file": str(audio_path),
-            "start_seconds": round(start, 3),
-            "end_seconds": round(end, 3),
-            "start_time": seconds_to_time(start),
-            "end_time": seconds_to_time(end),
-            "time_interval": f"{seconds_to_time(start)} - {seconds_to_time(end)}",
-            "text": text
-        })
-
-    excel_path = TRANSCRIPT_DIR / f"{video_path.stem}_whisper_segments.xlsx"
-
-    df = pd.DataFrame(rows)
-    df.to_excel(excel_path, index=False)
-
-    json_path = TRANSCRIPT_DIR / f"{video_path.stem}_whisper_report.json"
-
-    json_report = {
-        "report_type": "AUDIO_TRANSCRIPTION_REPORT",
-        "video_name": video_path.name,
-        "video_path": str(video_path),
-        "audio_path": str(audio_path),
+    report = {
+        "report_type": "WHISPER_AUDIO_RECOGNITION",
         "model_name": model_name,
-        "language": language if language is not None else "auto",
-        "full_text": full_text,
+        "audio_path": str(audio_path),
+        "transcript_path": str(transcript_path),
+        "segments_excel_path": str(segments_excel_path),
         "segments_count": len(segments),
-        "segments": rows,
+        "full_text": full_text,
         "analysis_timestamp": datetime.now().isoformat()
     }
 
-    with open(json_path, "w", encoding="utf-8") as file:
-        json.dump(json_report, file, ensure_ascii=False, indent=4)
+    with open(report_json_path, "w", encoding="utf-8") as file:
+        json.dump(report, file, ensure_ascii=False, indent=4)
 
-    print("\nРезультаты сохранены.")
-    print(f"Папка текущего запуска: {RUN_DIR}")
-    print(f"Аудиофайл: {audio_path}")
-    print(f"TXT-расшифровка: {txt_path}")
-    print(f"Excel по сегментам: {excel_path}")
-    print(f"JSON-отчёт: {json_path}")
+    return {
+        "transcript_path": transcript_path,
+        "segments_excel_path": segments_excel_path,
+        "report_json_path": report_json_path,
+        "full_text": full_text
+    }
 
 
 # =====================================================
-# ОСНОВНАЯ ПРОГРАММА
+# MAIN
 # =====================================================
 
 def main():
     print("=" * 70)
-    print("ПЗ4: извлечение аудио и распознавание речи через Whisper")
+    print("ПЗ4: извлечение аудио и распознавание речи Whisper")
     print("=" * 70)
 
-    print("\nКаждый запуск сохраняется в новую папку:")
-    print(RUN_DIR)
-
-    video_path = choose_video()
-
-    if video_path is None:
+    try:
+        config = load_run_config()
+    except Exception as error:
+        print("\nНе удалось загрузить run_config.json.")
+        print("Сначала запусти main.py и выбери видео.")
+        print(error)
         return
+
+    video_path = Path(config["video_path"])
+    audio_dir = Path(config["audio_dir"])
+    whisper_dir = Path(config["whisper_dir"])
+
+    if not video_path.exists():
+        print("\nВидео не найдено:")
+        print(video_path)
+        return
+
+    print("\nИспользуется видео текущего запуска:")
+    print(video_path)
+
+    print("\nАудио будет сохранено в папку:")
+    print(audio_dir)
+
+    print("\nРезультаты Whisper будут сохранены в папку:")
+    print(whisper_dir)
 
     model_name = choose_whisper_model()
-    language = choose_language()
 
-    audio_path = extract_audio_from_video(video_path)
+    clear_folder(audio_dir)
+    clear_folder(whisper_dir)
 
-    if audio_path is None:
+    audio_path = audio_dir / "input_video_audio.wav"
+
+    try:
+        extracted_audio_path = extract_audio_from_video(
+            video_path=video_path,
+            audio_path=audio_path
+        )
+
+        result = transcribe_audio(
+            audio_path=extracted_audio_path,
+            model_name=model_name
+        )
+
+        segments = build_segments(result)
+
+        saved_paths = save_whisper_results(
+            whisper_dir=whisper_dir,
+            audio_path=extracted_audio_path,
+            model_name=model_name,
+            result=result,
+            segments=segments
+        )
+
+    except Exception as error:
+        print("\nОшибка при выполнении ПЗ4:")
+        print(error)
+
+        config["pz4_status"] = "error"
+        config["pz4_error"] = str(error)
+        config["pz4_finished_at"] = datetime.now().isoformat()
+        save_run_config(config)
+
         return
 
-    whisper_result = transcribe_audio(
-        audio_path,
-        model_name,
-        language
-    )
+    config["audio_dir"] = str(audio_dir)
+    config["audio_path"] = str(extracted_audio_path)
+    config["whisper_dir"] = str(whisper_dir)
+    config["whisper_model"] = model_name
+    config["whisper_transcript_path"] = str(saved_paths["transcript_path"])
+    config["whisper_segments_path"] = str(saved_paths["segments_excel_path"])
+    config["whisper_report_path"] = str(saved_paths["report_json_path"])
+    config["whisper_segments_count"] = len(segments)
+    config["whisper_full_text"] = saved_paths["full_text"]
+    config["pz4_status"] = "success"
+    config["pz4_finished_at"] = datetime.now().isoformat()
 
-    save_results(
-        video_path,
-        audio_path,
-        whisper_result,
-        model_name,
-        language
-    )
+    save_run_config(config)
 
-    print("\nГотово.")
+    print("\nПЗ4 завершено успешно.")
+    print(f"Аудиофайл: {extracted_audio_path}")
+    print(f"Сегментов речи: {len(segments)}")
+    print(f"Текстовая расшифровка: {saved_paths['transcript_path']}")
+    print(f"Excel с сегментами: {saved_paths['segments_excel_path']}")
+    print("\nrun_config.json обновлён.")
 
 
 if __name__ == "__main__":

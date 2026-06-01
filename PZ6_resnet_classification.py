@@ -1,64 +1,53 @@
 import json
 import re
 import shutil
-import pandas as pd
-import torch
 from pathlib import Path
 from datetime import datetime
-from PIL import Image, ImageDraw, ImageFont
+from collections import Counter
 
-from torchvision.models import (
-    resnet18,
-    resnet34,
-    ResNet18_Weights,
-    ResNet34_Weights
-)
+import pandas as pd
+import torch
+from PIL import Image
+from torchvision import models, transforms
+
+from project_config import load_run_config, RUN_CONFIG_PATH
 
 
 # =====================================================
-# НАСТРОЙКА ПАПОК
+# НАСТРОЙКИ
 # =====================================================
 
-BASE_DIR = Path(__file__).resolve().parent
+SUPPORTED_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".bmp", ".webp"]
 
-# Результаты ПЗ5, где лежат object_crops
-PZ5_RESULT_ROOT = BASE_DIR / "results" / "pz5_yolo"
-
-# Кадры из ПЗ2 — запасной вариант, если нужно классифицировать весь кадр
-PZ2_FRAME_ROOT = BASE_DIR / "results" / "pz2_frames" / "FRAME_FOLDER"
-
-# Результаты ПЗ6
-RESULT_ROOT = BASE_DIR / "results" / "pz6_resnet"
-
-RUN_TIMESTAMP = datetime.now().strftime("%Y%m%d_%H%M%S")
-RUN_DIR = RESULT_ROOT / f"resnet_run_{RUN_TIMESTAMP}"
-
-ANNOTATED_IMAGES_DIR = RUN_DIR / "annotated_images"
-COPIED_INPUTS_DIR = RUN_DIR / "input_images"
-
-RESULT_ROOT.mkdir(parents=True, exist_ok=True)
-RUN_DIR.mkdir(parents=True, exist_ok=True)
-ANNOTATED_IMAGES_DIR.mkdir(parents=True, exist_ok=True)
-COPIED_INPUTS_DIR.mkdir(parents=True, exist_ok=True)
-
-SUPPORTED_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".bmp"]
+DEFAULT_TOP_K = 5
 
 
 # =====================================================
 # ОБЩИЕ ФУНКЦИИ
 # =====================================================
 
-def safe_filename(text):
-    text = str(text)
-    text = re.sub(r"[^A-Za-zА-Яа-яЁё0-9_-]", "_", text)
-    return text
+def save_run_config(config):
+    with open(RUN_CONFIG_PATH, "w", encoding="utf-8") as file:
+        json.dump(config, file, ensure_ascii=False, indent=4)
+
+
+def clear_folder(folder_path):
+    folder_path = Path(folder_path)
+
+    if folder_path.exists():
+        shutil.rmtree(folder_path)
+
+    folder_path.mkdir(parents=True, exist_ok=True)
 
 
 def seconds_to_time(seconds):
-    if seconds is None:
+    if seconds is None or seconds == "":
         return ""
 
-    seconds = int(seconds)
+    try:
+        seconds = int(float(seconds))
+    except Exception:
+        return ""
 
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
@@ -67,18 +56,20 @@ def seconds_to_time(seconds):
     return f"{hours:02d}:{minutes:02d}:{sec:02d}"
 
 
+def safe_float(value, default=0.0):
+    try:
+        if value == "":
+            return default
+        return float(value)
+    except Exception:
+        return default
+
+
 def extract_time_from_filename(filename):
-    """
-    Достаёт время из имени кадра/объекта, если оно есть.
-
-    Пример:
-    video_frame_00005_time_00005000ms_object_000_person.jpg
-    """
-
     match = re.search(r"time_(\d+)ms", filename)
 
     if not match:
-        return None, ""
+        return 0.0, "00:00:00"
 
     milliseconds = int(match.group(1))
     seconds = milliseconds / 1000
@@ -87,291 +78,125 @@ def extract_time_from_filename(filename):
 
 
 def extract_frame_number_from_filename(filename):
-    """
-    Достаёт номер кадра из имени файла.
-    """
-
-    match = re.search(r"_frame_(\d+)", filename)
+    match = re.search(r"frame_(\d+)", filename)
 
     if not match:
-        return None
+        return 0
 
     return int(match.group(1))
 
 
-def ask_int(message, default_value):
-    user_input = input(message).strip()
+def extract_source_frame_number_from_filename(filename):
+    match = re.search(r"source_(\d+)", filename)
+
+    if not match:
+        return 0
+
+    return int(match.group(1))
+
+
+def get_image_files(folder_path):
+    folder_path = Path(folder_path)
+
+    if not folder_path.exists():
+        return []
+
+    files = [
+        file for file in folder_path.iterdir()
+        if file.is_file() and file.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS
+    ]
+
+    return sorted(files)
+
+
+# =====================================================
+# IMAGENET LABELS
+# =====================================================
+
+def load_imagenet_labels():
+    """
+    Загружает список классов ImageNet.
+
+    Сначала пробуем взять labels из torchvision weights.
+    Если не получилось, используем короткий fallback,
+    чтобы программа не падала.
+    """
+
+    try:
+        weights = models.ResNet34_Weights.DEFAULT
+        categories = weights.meta["categories"]
+        return categories
+    except Exception:
+        return [f"class_{index}" for index in range(1000)]
+
+
+# =====================================================
+# МОДЕЛЬ RESNET
+# =====================================================
+
+def choose_top_k():
+    print("\nВведите количество top-k классов.")
+    print("Например:")
+    print("3 — показать 3 наиболее вероятных класса")
+    print("5 — показать 5 наиболее вероятных классов")
+    print("Enter — 5")
+
+    user_input = input("\nTop-k: ").strip()
 
     if user_input == "":
-        return default_value
+        return DEFAULT_TOP_K
 
     try:
         value = int(user_input)
 
         if value <= 0:
-            print("Значение должно быть больше 0. Используется значение по умолчанию.")
-            return default_value
+            print("Top-k должен быть больше 0. Используется 5.")
+            return DEFAULT_TOP_K
+
+        if value > 10:
+            print("Слишком большое значение. Используется 10.")
+            return 10
 
         return value
 
     except ValueError:
-        print("Введено некорректное значение. Используется значение по умолчанию.")
-        return default_value
+        print("Некорректное значение. Используется 5.")
+        return DEFAULT_TOP_K
 
 
-# =====================================================
-# ВЫБОР ИСТОЧНИКА ИЗОБРАЖЕНИЙ
-# =====================================================
-
-def choose_source_mode():
-    print("\nЧто классифицировать через ResNet?")
-    print("1 — вырезанные объекты из ПЗ5 object_crops")
-    print("2 — целые кадры из ПЗ2 FRAME_FOLDER")
-
-    choice = input("\nВведите 1 или 2 (Enter = 1): ").strip()
-
-    if choice == "":
-        choice = "1"
-
-    if choice == "1":
-        return "pz5_object_crops"
-
-    if choice == "2":
-        return "pz2_full_frames"
-
-    print("Неверный выбор. Используются object_crops из ПЗ5.")
-    return "pz5_object_crops"
-
-
-def choose_pz5_object_crops_folder():
+def load_resnet34_model():
     """
-    Выбор папки object_crops из запусков ПЗ5.
+    Загружает ResNet34 с предобученными весами ImageNet.
     """
 
-    if not PZ5_RESULT_ROOT.exists():
-        print("Папка результатов ПЗ5 не найдена:")
-        print(PZ5_RESULT_ROOT)
-        return None
+    print("\nЗагружается ResNet34...")
 
-    yolo_runs = [
-        folder for folder in sorted(PZ5_RESULT_ROOT.iterdir())
-        if folder.is_dir() and folder.name.startswith("yolo_run_")
-    ]
-
-    if not yolo_runs:
-        print("В results/pz5_yolo нет запусков yolo_run.")
-        return None
-
-    available_runs = []
-
-    for run_folder in yolo_runs:
-        crops_folder = run_folder / "object_crops"
-
-        if not crops_folder.exists():
-            continue
-
-        images = [
-            file for file in crops_folder.iterdir()
-            if file.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS
-        ]
-
-        if images:
-            available_runs.append((run_folder, crops_folder, len(images)))
-
-    if not available_runs:
-        print("В запусках ПЗ5 не найдено object_crops с изображениями.")
-        return None
-
-    print("\nНайдены папки object_crops из ПЗ5:")
-
-    for index, item in enumerate(available_runs, start=1):
-        run_folder, crops_folder, image_count = item
-        print(f"{index}. {run_folder.name} — объектов: {image_count}")
-
-    choice = input("\nВведите номер запуска ПЗ5: ").strip()
-
-    try:
-        choice_number = int(choice)
-
-        if 1 <= choice_number <= len(available_runs):
-            return available_runs[choice_number - 1][1]
-
-        print("Неверный номер.")
-        return None
-
-    except ValueError:
-        print("Введено не число.")
-        return None
-
-
-def choose_pz2_frames_folder():
-    """
-    Запасной режим: классификация целых кадров.
-    """
-
-    if not PZ2_FRAME_ROOT.exists():
-        print("Папка кадров ПЗ2 не найдена:")
-        print(PZ2_FRAME_ROOT)
-        return None
-
-    frame_folders = [
-        folder for folder in sorted(PZ2_FRAME_ROOT.iterdir())
-        if folder.is_dir()
-    ]
-
-    if not frame_folders:
-        print("В FRAME_FOLDER нет папок с кадрами.")
-        return None
-
-    print("\nНайдены папки с кадрами ПЗ2:")
-
-    for index, folder in enumerate(frame_folders, start=1):
-        images = [
-            file for file in folder.iterdir()
-            if file.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS
-        ]
-
-        print(f"{index}. {folder.name} — кадров: {len(images)}")
-
-    choice = input("\nВведите номер папки с кадрами: ").strip()
-
-    try:
-        choice_number = int(choice)
-
-        if 1 <= choice_number <= len(frame_folders):
-            return frame_folders[choice_number - 1]
-
-        print("Неверный номер.")
-        return None
-
-    except ValueError:
-        print("Введено не число.")
-        return None
-
-
-def choose_images_folder():
-    source_mode = choose_source_mode()
-
-    if source_mode == "pz5_object_crops":
-        folder = choose_pz5_object_crops_folder()
-    else:
-        folder = choose_pz2_frames_folder()
-
-    return source_mode, folder
-
-
-# =====================================================
-# ВЫБОР RESNET
-# =====================================================
-
-def choose_resnet_model():
-    print("\nВыберите модель ResNet:")
-    print("1 — ResNet18, быстрее")
-    print("2 — ResNet34, лучше качество")
-
-    choice = input("\nВведите 1 или 2 (Enter = ResNet34): ").strip()
-
-    if choice == "":
-        return "resnet34"
-
-    if choice == "1":
-        return "resnet18"
-
-    if choice == "2":
-        return "resnet34"
-
-    print("Неверный выбор. Используется ResNet34.")
-    return "resnet34"
-
-
-def load_resnet_model(model_name):
-    """
-    Загружает предобученную ResNet.
-    Важно: ResNet50 не используется.
-    """
-
-    print("\nЗагружаем модель ResNet...")
-    print(f"Модель: {model_name}")
-
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"Устройство: {device}")
-
-    try:
-        if model_name == "resnet18":
-            weights = ResNet18_Weights.DEFAULT
-            model = resnet18(weights=weights)
-        else:
-            weights = ResNet34_Weights.DEFAULT
-            model = resnet34(weights=weights)
-
-    except Exception as error:
-        print("\nНе удалось загрузить предобученные веса ResNet.")
-        print("Скорее всего, PyTorch пытается скачать веса, но нет доступа к интернету.")
-        print("Попробуй временно отключить прокси/VPN и запустить снова.")
-        print("\nТекст ошибки:")
-        print(error)
-        return None, None, None
-
-    model.to(device)
+    weights = models.ResNet34_Weights.DEFAULT
+    model = models.resnet34(weights=weights)
     model.eval()
 
     preprocess = weights.transforms()
-    categories = weights.meta["categories"]
 
-    print("ResNet успешно загружена.")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
 
-    return model, preprocess, categories
+    print(f"Устройство: {device}")
+
+    return model, preprocess, device
 
 
-# =====================================================
-# АННОТАЦИЯ ИЗОБРАЖЕНИЙ
-# =====================================================
-
-def draw_prediction_on_image(image_path, top1_class, top1_confidence, save_path):
-    """
-    Сохраняет копию изображения с подписью класса ResNet.
-    """
+def classify_image(model, preprocess, device, image_path, labels, top_k):
+    image_path = Path(image_path)
 
     try:
         image = Image.open(image_path).convert("RGB")
-    except Exception:
-        return ""
-
-    draw = ImageDraw.Draw(image)
-
-    text = f"{top1_class} | {top1_confidence:.3f}"
-
-    # Простая подпись без зависимости от внешних шрифтов
-    rectangle_height = 32
-    draw.rectangle(
-        [(0, 0), (image.width, rectangle_height)],
-        fill=(255, 255, 255)
-    )
-
-    draw.text(
-        (8, 8),
-        text,
-        fill=(0, 0, 0)
-    )
-
-    image.save(save_path)
-
-    return str(save_path)
-
-
-# =====================================================
-# КЛАССИФИКАЦИЯ
-# =====================================================
-
-def classify_single_image(image_path, model, preprocess, categories, top_k, device):
-    """
-    Классифицирует одно изображение с помощью ResNet.
-    """
-
-    try:
-        image = Image.open(image_path).convert("RGB")
-    except Exception:
-        return None, []
+    except Exception as error:
+        return {
+            "success": False,
+            "error": str(error),
+            "top1": None,
+            "topk": []
+        }
 
     input_tensor = preprocess(image).unsqueeze(0).to(device)
 
@@ -381,236 +206,257 @@ def classify_single_image(image_path, model, preprocess, categories, top_k, devi
 
     top_probabilities, top_indices = torch.topk(probabilities, top_k)
 
-    top_results = []
+    topk_results = []
 
-    for rank, index in enumerate(top_indices, start=1):
-        class_id = int(index.item())
-        class_name = categories[class_id]
-        confidence = float(top_probabilities[rank - 1].item())
+    for rank, (probability, class_index) in enumerate(
+        zip(top_probabilities, top_indices),
+        start=1
+    ):
+        class_index = int(class_index.item())
+        confidence = float(probability.item())
 
-        top_results.append({
+        class_name = labels[class_index] if class_index < len(labels) else f"class_{class_index}"
+
+        topk_results.append({
             "rank": rank,
-            "class_id": class_id,
+            "class_id": class_index,
             "class_name": class_name,
-            "confidence": round(confidence, 6)
+            "confidence": round(confidence, 4)
         })
 
-    top1 = top_results[0] if top_results else None
+    top1 = topk_results[0] if topk_results else None
 
-    return top1, top_results
+    return {
+        "success": True,
+        "error": "",
+        "top1": top1,
+        "topk": topk_results
+    }
 
 
-def process_images_with_resnet(images_folder, model, preprocess, categories, top_k, source_mode, model_name):
-    """
-    Классифицирует изображения из выбранной папки.
-    """
+# =====================================================
+# ОБРАБОТКА OBJECT CROPS
+# =====================================================
 
-    image_files = [
-        file for file in sorted(images_folder.iterdir())
-        if file.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS
-    ]
+def process_object_crops(object_crops_dir, top_k):
+    object_crops_dir = Path(object_crops_dir)
+
+    image_files = get_image_files(object_crops_dir)
 
     if not image_files:
-        print("В выбранной папке нет изображений.")
-        return [], []
+        print("\nВ папке object_crops нет изображений:")
+        print(object_crops_dir)
+        return [], [], []
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"\nНайдено изображений для ResNet: {len(image_files)}")
 
-    print(f"\nНайдено изображений: {len(image_files)}")
-    print(f"Top-K: {top_k}")
+    labels = load_imagenet_labels()
+    model, preprocess, device = load_resnet34_model()
 
     top1_rows = []
     topk_rows = []
+    class_counter = Counter()
 
     for image_index, image_path in enumerate(image_files, start=1):
-        print(f"Классификация {image_index}/{len(image_files)}: {image_path.name}")
+        print(f"ResNet {image_index}/{len(image_files)}: {image_path.name}")
 
-        frame_number = extract_frame_number_from_filename(image_path.name)
         time_seconds, time_formatted = extract_time_from_filename(image_path.name)
+        frame_number = extract_frame_number_from_filename(image_path.name)
+        source_frame_number = extract_source_frame_number_from_filename(image_path.name)
 
-        top1, top_results = classify_single_image(
-            image_path,
-            model,
-            preprocess,
-            categories,
-            top_k,
-            device
+        result = classify_image(
+            model=model,
+            preprocess=preprocess,
+            device=device,
+            image_path=image_path,
+            labels=labels,
+            top_k=top_k
         )
 
-        if top1 is None:
+        if not result["success"]:
+            top1_rows.append({
+                "image_file": image_path.name,
+                "image_path": str(image_path),
+                "frame_number": frame_number,
+                "source_frame_number": source_frame_number,
+                "time_seconds": time_seconds,
+                "time_formatted": time_formatted,
+                "success": False,
+                "error": result["error"],
+                "top1_class_id": "",
+                "top1_class_name": "",
+                "top1_confidence": ""
+            })
             continue
 
-        copied_input_path = COPIED_INPUTS_DIR / image_path.name
-
-        try:
-            shutil.copy2(image_path, copied_input_path)
-        except Exception:
-            copied_input_path = ""
-
-        annotated_filename = f"{image_path.stem}_resnet.jpg"
-        annotated_path = ANNOTATED_IMAGES_DIR / annotated_filename
-
-        annotated_path_str = draw_prediction_on_image(
-            image_path,
-            top1["class_name"],
-            top1["confidence"],
-            annotated_path
-        )
+        top1 = result["top1"]
 
         top1_rows.append({
             "image_file": image_path.name,
             "image_path": str(image_path),
-            "source_mode": source_mode,
-            "model_name": model_name,
             "frame_number": frame_number,
+            "source_frame_number": source_frame_number,
             "time_seconds": time_seconds,
             "time_formatted": time_formatted,
+            "success": True,
+            "error": "",
             "top1_class_id": top1["class_id"],
             "top1_class_name": top1["class_name"],
-            "top1_confidence": top1["confidence"],
-            "annotated_image_path": annotated_path_str
+            "top1_confidence": top1["confidence"]
         })
 
-        for result in top_results:
+        class_counter[top1["class_name"]] += 1
+
+        for item in result["topk"]:
             topk_rows.append({
                 "image_file": image_path.name,
                 "image_path": str(image_path),
-                "source_mode": source_mode,
-                "model_name": model_name,
                 "frame_number": frame_number,
+                "source_frame_number": source_frame_number,
                 "time_seconds": time_seconds,
                 "time_formatted": time_formatted,
-                "rank": result["rank"],
-                "class_id": result["class_id"],
-                "class_name": result["class_name"],
-                "confidence": result["confidence"]
+                "rank": item["rank"],
+                "class_id": item["class_id"],
+                "class_name": item["class_name"],
+                "confidence": item["confidence"]
             })
 
-    return top1_rows, topk_rows
+    class_summary_rows = []
+
+    for class_name, count in class_counter.most_common():
+        class_summary_rows.append({
+            "class_name": class_name,
+            "images_count": count
+        })
+
+    return top1_rows, topk_rows, class_summary_rows
 
 
 # =====================================================
 # СОХРАНЕНИЕ РЕЗУЛЬТАТОВ
 # =====================================================
 
-def build_class_summary(top1_rows):
-    if not top1_rows:
-        return []
+def save_resnet_results(resnet_dir, top1_rows, topk_rows, class_summary_rows, top_k):
+    resnet_dir = Path(resnet_dir)
+    resnet_dir.mkdir(parents=True, exist_ok=True)
 
-    df = pd.DataFrame(top1_rows)
-
-    summary_df = (
-        df.groupby("top1_class_name")
-        .agg(
-            images_count=("top1_class_name", "count"),
-            max_confidence=("top1_confidence", "max"),
-            mean_confidence=("top1_confidence", "mean")
-        )
-        .reset_index()
-        .sort_values("images_count", ascending=False)
-    )
-
-    summary_df["mean_confidence"] = summary_df["mean_confidence"].round(6)
-
-    return summary_df.to_dict(orient="records")
-
-
-def save_results(images_folder, source_mode, model_name, top_k, top1_rows, topk_rows):
-    """
-    Сохраняет результаты ResNet в Excel и JSON.
-    """
-
-    class_summary_rows = build_class_summary(top1_rows)
-
-    excel_path = RUN_DIR / "resnet_classification_results.xlsx"
-    json_path = RUN_DIR / "resnet_classification_report.json"
+    excel_path = resnet_dir / "resnet_classification_results.xlsx"
+    json_path = resnet_dir / "resnet_classification_report.json"
 
     top1_df = pd.DataFrame(top1_rows)
     topk_df = pd.DataFrame(topk_rows)
-    summary_df = pd.DataFrame(class_summary_rows)
+    class_summary_df = pd.DataFrame(class_summary_rows)
 
     with pd.ExcelWriter(excel_path, engine="openpyxl") as writer:
         top1_df.to_excel(writer, sheet_name="top1_results", index=False)
         topk_df.to_excel(writer, sheet_name="topk_results", index=False)
-        summary_df.to_excel(writer, sheet_name="class_summary", index=False)
+        class_summary_df.to_excel(writer, sheet_name="class_summary", index=False)
 
-    json_report = {
-        "report_type": "RESNET_CLASSIFICATION_REPORT",
-        "model_type": "ResNet",
-        "model_name": model_name,
-        "note": "ResNet50 is not used",
-        "source_mode": source_mode,
-        "images_folder": str(images_folder),
+    report = {
+        "report_type": "RESNET_IMAGE_CLASSIFICATION",
+        "model_name": "resnet34",
         "top_k": top_k,
         "processed_images_count": len(top1_rows),
-        "class_summary": class_summary_rows,
-        "top1_results": top1_rows,
-        "topk_results": topk_rows,
+        "topk_rows_count": len(topk_rows),
+        "classes_count": len(class_summary_rows),
+        "excel_path": str(excel_path),
         "analysis_timestamp": datetime.now().isoformat()
     }
 
     with open(json_path, "w", encoding="utf-8") as file:
-        json.dump(json_report, file, ensure_ascii=False, indent=4)
+        json.dump(report, file, ensure_ascii=False, indent=4)
 
-    print("\nГотово.")
-    print(f"Папка результатов ПЗ6: {RUN_DIR}")
-    print(f"Excel-таблица: {excel_path}")
-    print(f"JSON-отчёт: {json_path}")
-    print(f"Изображения с подписями: {ANNOTATED_IMAGES_DIR}")
-
-    print("\nСтатистика:")
-    print(f"Обработано изображений: {len(top1_rows)}")
-    print(f"Уникальных top1-классов: {len(class_summary_rows)}")
+    return {
+        "excel_path": excel_path,
+        "json_path": json_path
+    }
 
 
 # =====================================================
-# ОСНОВНАЯ ПРОГРАММА
+# MAIN
 # =====================================================
 
 def main():
     print("=" * 70)
-    print("ПЗ6: классификация объектов с помощью ResNet")
+    print("ПЗ6: классификация объектов ResNet34")
     print("=" * 70)
 
-    print("\nВажно: ResNet50 в данном задании не используется.")
-    print("Основная рекомендуемая модель — ResNet34.")
-
-    source_mode, images_folder = choose_images_folder()
-
-    if images_folder is None:
+    try:
+        config = load_run_config()
+    except Exception as error:
+        print("\nНе удалось загрузить run_config.json.")
+        print("Сначала запусти main.py и выполни ПЗ5.")
+        print(error)
         return
 
-    model_name = choose_resnet_model()
+    object_crops_dir = Path(config["object_crops_dir"])
+    resnet_dir = Path(config["resnet_dir"])
 
-    top_k = ask_int(
-        "\nВведите количество вариантов классификации Top-K "
-        "(например 3 или 5; Enter = 5): ",
-        5
-    )
-
-    model, preprocess, categories = load_resnet_model(model_name)
-
-    if model is None:
+    if not object_crops_dir.exists():
+        print("\nПапка object_crops не найдена:")
+        print(object_crops_dir)
         return
 
-    top1_rows, topk_rows = process_images_with_resnet(
-        images_folder,
-        model,
-        preprocess,
-        categories,
-        top_k,
-        source_mode,
-        model_name
-    )
+    image_files = get_image_files(object_crops_dir)
 
-    save_results(
-        images_folder,
-        source_mode,
-        model_name,
-        top_k,
-        top1_rows,
-        topk_rows
-    )
+    if not image_files:
+        print("\nВ object_crops нет изображений для классификации:")
+        print(object_crops_dir)
+        return
+
+    print("\nИзображения объектов берутся из папки:")
+    print(object_crops_dir)
+
+    print("\nРезультаты ResNet будут сохранены в папку:")
+    print(resnet_dir)
+
+    top_k = choose_top_k()
+
+    clear_folder(resnet_dir)
+
+    try:
+        top1_rows, topk_rows, class_summary_rows = process_object_crops(
+            object_crops_dir=object_crops_dir,
+            top_k=top_k
+        )
+
+        saved_paths = save_resnet_results(
+            resnet_dir=resnet_dir,
+            top1_rows=top1_rows,
+            topk_rows=topk_rows,
+            class_summary_rows=class_summary_rows,
+            top_k=top_k
+        )
+
+    except Exception as error:
+        print("\nОшибка при выполнении ПЗ6:")
+        print(error)
+
+        config["pz6_status"] = "error"
+        config["pz6_error"] = str(error)
+        config["pz6_finished_at"] = datetime.now().isoformat()
+        save_run_config(config)
+
+        return
+
+    config["resnet_dir"] = str(resnet_dir)
+    config["resnet_model"] = "resnet34"
+    config["resnet_top_k"] = top_k
+    config["resnet_results_path"] = str(saved_paths["excel_path"])
+    config["resnet_report_path"] = str(saved_paths["json_path"])
+    config["resnet_processed_images_count"] = len(top1_rows)
+    config["resnet_classes_count"] = len(class_summary_rows)
+    config["pz6_status"] = "success"
+    config["pz6_finished_at"] = datetime.now().isoformat()
+
+    save_run_config(config)
+
+    print("\nПЗ6 завершено успешно.")
+    print(f"Классифицировано изображений: {len(top1_rows)}")
+    print(f"Количество классов top1: {len(class_summary_rows)}")
+    print(f"Excel: {saved_paths['excel_path']}")
+    print(f"JSON: {saved_paths['json_path']}")
+    print("\nrun_config.json обновлён.")
 
 
 if __name__ == "__main__":

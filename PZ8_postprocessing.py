@@ -7,27 +7,7 @@ from difflib import SequenceMatcher
 import cv2
 import pandas as pd
 
-
-# =====================================================
-# НАСТРОЙКА ПАПОК
-# =====================================================
-
-BASE_DIR = Path(__file__).resolve().parent
-
-PZ3_ROOT = BASE_DIR / "results" / "pz3_ocr"
-PZ4_ROOT = BASE_DIR / "results" / "pz4_whisper"
-PZ5_ROOT = BASE_DIR / "results" / "pz5_yolo"
-PZ6_ROOT = BASE_DIR / "results" / "pz6_resnet"
-PZ7_ROOT = BASE_DIR / "results" / "pz7_llm"
-
-RESULT_ROOT = BASE_DIR / "results" / "pz8_postprocessing"
-TAXONOMY_PATH = BASE_DIR / "risk_taxonomy.json"
-
-RUN_TIMESTAMP = datetime.now().strftime("%Y%m%d_%H%M%S")
-RUN_DIR = RESULT_ROOT / f"postprocess_run_{RUN_TIMESTAMP}"
-
-RESULT_ROOT.mkdir(parents=True, exist_ok=True)
-RUN_DIR.mkdir(parents=True, exist_ok=True)
+from project_config import BASE_DIR, load_run_config, RUN_CONFIG_PATH
 
 
 # =====================================================
@@ -37,10 +17,17 @@ RUN_DIR.mkdir(parents=True, exist_ok=True)
 DEFAULT_FPS = 30.0
 MIN_VIDEO_CONFIDENCE = 0.30
 
+TAXONOMY_PATH = BASE_DIR / "risk_taxonomy.json"
+
 
 # =====================================================
 # ОБЩИЕ ФУНКЦИИ
 # =====================================================
+
+def save_run_config(config):
+    with open(RUN_CONFIG_PATH, "w", encoding="utf-8") as file:
+        json.dump(config, file, ensure_ascii=False, indent=4)
+
 
 def clean_text(text):
     if text is None:
@@ -48,6 +35,7 @@ def clean_text(text):
 
     text = str(text)
     text = text.replace("\n", " ")
+    text = text.replace("\r", " ")
     text = text.replace("|", " ")
     text = text.replace("_", " ")
     text = re.sub(r"\s+", " ", text)
@@ -83,7 +71,7 @@ def normalize_text(text):
     for latin, cyrillic in replacements.items():
         text = text.replace(latin, cyrillic)
 
-    text = re.sub(r"[^a-zа-я0-9 ]", " ", text, flags=re.IGNORECASE)
+    text = re.sub(r"[^a-zа-я0-9 ,]", " ", text, flags=re.IGNORECASE)
     text = re.sub(r"\s+", " ", text)
     text = text.strip()
 
@@ -104,23 +92,6 @@ def text_similarity(text_1, text_2):
         return 0.92
 
     return SequenceMatcher(None, norm_1, norm_2).ratio()
-
-
-def contains_any_keyword(text, keywords):
-    text_norm = normalize_text(text)
-
-    if not text_norm:
-        return []
-
-    found = []
-
-    for keyword in keywords:
-        keyword_norm = normalize_text(keyword)
-
-        if keyword_norm and keyword_norm in text_norm:
-            found.append(keyword)
-
-    return list(sorted(set(found)))
 
 
 def seconds_to_time(seconds):
@@ -168,7 +139,9 @@ def frame_from_seconds(seconds, fps):
 
 
 def read_json(json_path):
-    if json_path is None or not json_path.exists():
+    json_path = Path(json_path)
+
+    if not json_path.exists():
         return {}
 
     try:
@@ -179,7 +152,9 @@ def read_json(json_path):
 
 
 def read_excel_safe(excel_path, sheet_name=0):
-    if excel_path is None or not excel_path.exists():
+    excel_path = Path(excel_path)
+
+    if not excel_path.exists():
         return pd.DataFrame()
 
     try:
@@ -219,39 +194,14 @@ def dataframe_to_records(df):
     return df.to_dict(orient="records")
 
 
-def find_first_file(folder, pattern):
-    if folder is None or not folder.exists():
-        return None
-
-    files = list(folder.glob(pattern))
-
-    if not files:
-        return None
-
-    return sorted(files)[0]
-
-
 # =====================================================
-# ЗАГРУЗКА ТАКСОНОМИИ РИСКОВ
+# РИСК-ТАКСОНОМИЯ
 # =====================================================
 
 def load_risk_taxonomy():
-    """
-    Загружает риск-таксономию из risk_taxonomy.json.
-
-    Внутри taxonomy есть категории:
-    - weapon
-    - violence
-
-    Для каждой категории берутся:
-    - strong_terms
-    - weak_terms
-    - model_labels
-    """
-
     if not TAXONOMY_PATH.exists():
-        print("Файл risk_taxonomy.json не найден.")
-        print("Проверь, что он лежит в корне проекта рядом с PZ8_postprocessing.py.")
+        print("\nФайл risk_taxonomy.json не найден.")
+        print("Проверь, что он лежит в корне проекта.")
         return {
             "taxonomy_name": "missing_taxonomy",
             "taxonomy_version": "0.0",
@@ -265,7 +215,7 @@ def load_risk_taxonomy():
         return taxonomy
 
     except Exception as error:
-        print("Не удалось прочитать risk_taxonomy.json.")
+        print("\nОшибка чтения risk_taxonomy.json:")
         print(error)
 
         return {
@@ -290,14 +240,6 @@ def flatten_terms(term_block):
 
 
 def build_keyword_dict(taxonomy):
-    """
-    Преобразует таксономию в словарь вида:
-    {
-        "weapon": [...],
-        "violence": [...]
-    }
-    """
-
     keyword_dict = {}
 
     categories = taxonomy.get("categories", {})
@@ -322,8 +264,37 @@ def build_keyword_dict(taxonomy):
     return keyword_dict
 
 
+def contains_any_keyword(text, keywords):
+    text_norm = normalize_text(text)
+
+    if not text_norm:
+        return []
+
+    found = []
+
+    for keyword in keywords:
+        keyword_norm = normalize_text(keyword)
+
+        if keyword_norm and keyword_norm in text_norm:
+            found.append(keyword)
+
+    return list(sorted(set(found)))
+
+
+def detect_categories(text, keyword_dict):
+    detected = []
+
+    for subclass, keywords in keyword_dict.items():
+        hits = contains_any_keyword(text, keywords)
+
+        if hits:
+            detected.append(subclass)
+
+    return list(sorted(set(detected)))
+
+
 # =====================================================
-# АВТООПРЕДЕЛЕНИЕ FPS И КОЛИЧЕСТВА КАДРОВ
+# МЕТАДАННЫЕ ВИДЕО
 # =====================================================
 
 def get_video_metadata(video_path):
@@ -338,12 +309,12 @@ def get_video_metadata(video_path):
     if not video_path:
         return metadata
 
-    video_path = str(video_path)
+    video_path = Path(video_path)
 
-    if not Path(video_path).exists():
+    if not video_path.exists():
         return metadata
 
-    cap = cv2.VideoCapture(video_path)
+    cap = cv2.VideoCapture(str(video_path))
 
     if not cap.isOpened():
         cap.release()
@@ -377,223 +348,128 @@ def get_video_metadata(video_path):
 
 
 # =====================================================
-# ВЫБОР ЗАПУСКОВ
+# ЗАГРУЗКА РЕЗУЛЬТАТОВ ИЗ CURRENT_RUN
 # =====================================================
 
-def choose_run_folder(root_folder, prefix, title, allow_skip=True):
-    print("\n" + "=" * 70)
-    print(title)
-    print("=" * 70)
+def load_pz3_results(config):
+    ocr_dir = Path(config["ocr_dir"])
 
-    if not root_folder.exists():
-        print("Папка не найдена:")
-        print(root_folder)
+    unique_texts_path = ocr_dir / "unique_texts.txt"
+    segments_excel_path = ocr_dir / "deduplicated_segments.xlsx"
+    raw_excel_path = ocr_dir / "raw_ocr_results.xlsx"
+    json_path = ocr_dir / "ocr_results.json"
 
-        if allow_skip:
-            print("Этот блок будет пропущен.")
-            return None
-
-        return None
-
-    run_folders = [
-        folder for folder in sorted(root_folder.iterdir())
-        if folder.is_dir() and folder.name.startswith(prefix)
-    ]
-
-    if not run_folders:
-        print("Запуски не найдены:")
-        print(root_folder)
-
-        if allow_skip:
-            print("Этот блок будет пропущен.")
-            return None
-
-        return None
-
-    print("Найдены запуски:")
-
-    for index, folder in enumerate(run_folders, start=1):
-        print(f"{index}. {folder.name}")
-
-    print("\nEnter — выбрать последний запуск")
-
-    if allow_skip:
-        print("0 — пропустить этот блок")
-
-    choice = input("\nВведите номер запуска: ").strip()
-
-    if choice == "":
-        return run_folders[-1]
-
-    if allow_skip and choice == "0":
-        return None
-
-    try:
-        choice_number = int(choice)
-
-        if 1 <= choice_number <= len(run_folders):
-            return run_folders[choice_number - 1]
-
-        print("Неверный номер. Выбран последний запуск.")
-        return run_folders[-1]
-
-    except ValueError:
-        print("Введено не число. Выбран последний запуск.")
-        return run_folders[-1]
-
-
-def choose_all_runs():
-    pz3_run = choose_run_folder(
-        PZ3_ROOT,
-        "ocr_run_",
-        "Выбор результатов ПЗ3 OCR"
-    )
-
-    pz4_run = choose_run_folder(
-        PZ4_ROOT,
-        "whisper_run_",
-        "Выбор результатов ПЗ4 Whisper"
-    )
-
-    pz5_run = choose_run_folder(
-        PZ5_ROOT,
-        "yolo_run_",
-        "Выбор результатов ПЗ5 YOLO"
-    )
-
-    pz6_run = choose_run_folder(
-        PZ6_ROOT,
-        "resnet_run_",
-        "Выбор результатов ПЗ6 ResNet"
-    )
-
-    pz7_run = choose_run_folder(
-        PZ7_ROOT,
-        "llm_run_",
-        "Выбор результатов ПЗ7 LLM"
-    )
-
-    return {
-        "pz3_run": pz3_run,
-        "pz4_run": pz4_run,
-        "pz5_run": pz5_run,
-        "pz6_run": pz6_run,
-        "pz7_run": pz7_run
-    }
-
-
-# =====================================================
-# ЗАГРУЗКА РЕЗУЛЬТАТОВ ПЗ3–ПЗ7
-# =====================================================
-
-def load_pz3_results(pz3_run):
-    if pz3_run is None:
-        return {
-            "ocr_unique_texts": [],
-            "ocr_segments": []
-        }
-
-    unique_texts_path = pz3_run / "unique_texts.txt"
-    segments_excel_path = pz3_run / "deduplicated_segments.xlsx"
-
-    ocr_unique_texts = []
+    unique_texts = []
 
     if unique_texts_path.exists():
         with open(unique_texts_path, "r", encoding="utf-8") as file:
-            ocr_unique_texts = [
+            unique_texts = [
                 line.strip()
                 for line in file.readlines()
                 if line.strip()
             ]
 
     segments_df = read_excel_safe(segments_excel_path)
+    raw_df = read_excel_safe(raw_excel_path)
 
     return {
-        "ocr_unique_texts": ocr_unique_texts,
-        "ocr_segments": dataframe_to_records(segments_df)
+        "ocr_dir": str(ocr_dir),
+        "ocr_unique_texts": unique_texts,
+        "ocr_segments": dataframe_to_records(segments_df),
+        "ocr_raw_rows": dataframe_to_records(raw_df),
+        "ocr_json": read_json(json_path)
     }
 
 
-def load_pz4_results(pz4_run):
-    if pz4_run is None:
-        return {
-            "audio_full_text": "",
-            "audio_segments": [],
-            "audio_json": {}
-        }
+def load_pz4_results(config):
+    whisper_dir = Path(config["whisper_dir"])
 
-    transcripts_dir = pz4_run / "transcripts"
+    transcript_path = whisper_dir / "input_video_transcript.txt"
+    segments_excel_path = whisper_dir / "input_video_whisper_segments.xlsx"
+    json_path = whisper_dir / "input_video_whisper_report.json"
 
-    transcript_txt = find_first_file(transcripts_dir, "*_transcript.txt")
-    segments_excel = find_first_file(transcripts_dir, "*_whisper_segments.xlsx")
-    json_path = find_first_file(transcripts_dir, "*_whisper_report.json")
+    full_text = ""
 
-    audio_full_text = ""
+    if transcript_path.exists():
+        with open(transcript_path, "r", encoding="utf-8") as file:
+            full_text = file.read().strip()
 
-    if transcript_txt is not None and transcript_txt.exists():
-        with open(transcript_txt, "r", encoding="utf-8") as file:
-            audio_full_text = file.read().strip()
-
-    segments_df = read_excel_safe(segments_excel)
+    segments_df = read_excel_safe(segments_excel_path)
 
     return {
-        "audio_full_text": audio_full_text,
+        "whisper_dir": str(whisper_dir),
+        "audio_full_text": full_text,
         "audio_segments": dataframe_to_records(segments_df),
         "audio_json": read_json(json_path)
     }
 
 
-def load_pz5_results(pz5_run):
-    if pz5_run is None:
-        return {
-            "yolo_objects": [],
-            "yolo_frames": [],
-            "yolo_json": {}
-        }
+def load_pz5_results(config):
+    yolo_dir = Path(config["yolo_dir"])
 
-    excel_path = pz5_run / "yolo_detection_results.xlsx"
-    json_path = pz5_run / "yolo_detection_report.json"
+    excel_path = yolo_dir / "yolo_detection_results.xlsx"
+    json_path = yolo_dir / "yolo_detection_report.json"
 
     objects_df = read_excel_safe(excel_path, sheet_name="objects")
     frames_df = read_excel_safe(excel_path, sheet_name="frames")
+    class_summary_df = read_excel_safe(excel_path, sheet_name="class_summary")
 
     return {
+        "yolo_dir": str(yolo_dir),
         "yolo_objects": dataframe_to_records(objects_df),
         "yolo_frames": dataframe_to_records(frames_df),
+        "yolo_class_summary": dataframe_to_records(class_summary_df),
         "yolo_json": read_json(json_path)
     }
 
 
-def load_pz6_results(pz6_run):
-    if pz6_run is None:
-        return {
-            "resnet_top1": []
-        }
+def load_pz6_results(config):
+    resnet_dir = Path(config["resnet_dir"])
 
-    excel_path = pz6_run / "resnet_classification_results.xlsx"
+    excel_path = resnet_dir / "resnet_classification_results.xlsx"
+    json_path = resnet_dir / "resnet_classification_report.json"
+
     top1_df = read_excel_safe(excel_path, sheet_name="top1_results")
+    topk_df = read_excel_safe(excel_path, sheet_name="topk_results")
+    class_summary_df = read_excel_safe(excel_path, sheet_name="class_summary")
 
     return {
-        "resnet_top1": dataframe_to_records(top1_df)
+        "resnet_dir": str(resnet_dir),
+        "resnet_top1": dataframe_to_records(top1_df),
+        "resnet_topk": dataframe_to_records(topk_df),
+        "resnet_class_summary": dataframe_to_records(class_summary_df),
+        "resnet_json": read_json(json_path)
     }
 
 
-def load_pz7_results(pz7_run):
-    if pz7_run is None:
+def load_pz7_results(config):
+    llm_dir = Path(config["llm_dir"])
+
+    excel_path = llm_dir / "llm_image_analysis_results.xlsx"
+    json_path = llm_dir / "llm_image_analysis_report.json"
+
+    llm_json = read_json(json_path)
+
+    results_from_json = llm_json.get("results", [])
+
+    if results_from_json:
         return {
-            "llm_results": []
+            "llm_dir": str(llm_dir),
+            "llm_results": results_from_json,
+            "llm_json": llm_json
         }
 
-    excel_path = pz7_run / "llm_image_analysis_results.xlsx"
     results_df = read_excel_safe(excel_path, sheet_name="llm_results")
 
     return {
-        "llm_results": dataframe_to_records(results_df)
+        "llm_dir": str(llm_dir),
+        "llm_results": dataframe_to_records(results_df),
+        "llm_json": llm_json
     }
 
 
 # =====================================================
-# СОЗДАНИЕ DETECTIONS В ФОРМАТЕ ПРЕПОДАВАТЕЛЯ
+# DETECTIONS В ФОРМАТЕ ПРЕПОДАВАТЕЛЯ
 # =====================================================
 
 def make_detection(
@@ -638,23 +514,22 @@ def add_keyword_detections_from_text(
     base_confidence,
     keyword_dict
 ):
-    for subclass, keywords in keyword_dict.items():
-        hits = contains_any_keyword(text, keywords)
+    categories = detect_categories(text, keyword_dict)
 
-        if hits:
-            detections.append(
-                make_detection(
-                    subclass=subclass,
-                    detection_type=detection_type,
-                    start_seconds=start_seconds,
-                    end_seconds=end_seconds,
-                    fps=fps,
-                    confidence=base_confidence
-                )
+    for subclass in categories:
+        detections.append(
+            make_detection(
+                subclass=subclass,
+                detection_type=detection_type,
+                start_seconds=start_seconds,
+                end_seconds=end_seconds,
+                fps=fps,
+                confidence=base_confidence
             )
+        )
 
 
-def build_text_detections(pz3_data, pz4_data, fps, keyword_dict):
+def build_ocr_detections(pz3_data, fps, keyword_dict):
     detections = []
 
     for row in pz3_data.get("ocr_segments", []):
@@ -690,6 +565,12 @@ def build_text_detections(pz3_data, pz4_data, fps, keyword_dict):
                 keyword_dict=keyword_dict
             )
 
+    return detections
+
+
+def build_audio_detections(pz4_data, fps, keyword_dict):
+    detections = []
+
     for row in pz4_data.get("audio_segments", []):
         text = row.get("text", "")
 
@@ -718,20 +599,19 @@ def build_yolo_detections(pz5_data, fps, keyword_dict):
         confidence = safe_float(row.get("confidence", 0.8), 0.8)
         time_seconds = row.get("time_seconds", "")
 
-        for subclass, keywords in keyword_dict.items():
-            hits = contains_any_keyword(class_name, keywords)
+        categories = detect_categories(class_name, keyword_dict)
 
-            if hits:
-                detections.append(
-                    make_detection(
-                        subclass=subclass,
-                        detection_type="video",
-                        start_seconds=time_seconds,
-                        end_seconds=safe_float(time_seconds, 0.0) + 1.0,
-                        fps=fps,
-                        confidence=confidence
-                    )
+        for subclass in categories:
+            detections.append(
+                make_detection(
+                    subclass=subclass,
+                    detection_type="video",
+                    start_seconds=time_seconds,
+                    end_seconds=safe_float(time_seconds, 0.0) + 1.0,
+                    fps=fps,
+                    confidence=confidence
                 )
+            )
 
     return detections
 
@@ -744,22 +624,37 @@ def build_resnet_detections(pz6_data, fps, keyword_dict):
         confidence = safe_float(row.get("top1_confidence", 0.75), 0.75)
         time_seconds = row.get("time_seconds", "")
 
-        for subclass, keywords in keyword_dict.items():
-            hits = contains_any_keyword(class_name, keywords)
+        categories = detect_categories(class_name, keyword_dict)
 
-            if hits:
-                detections.append(
-                    make_detection(
-                        subclass=subclass,
-                        detection_type="video",
-                        start_seconds=time_seconds,
-                        end_seconds=safe_float(time_seconds, 0.0) + 1.0,
-                        fps=fps,
-                        confidence=confidence
-                    )
+        for subclass in categories:
+            detections.append(
+                make_detection(
+                    subclass=subclass,
+                    detection_type="video",
+                    start_seconds=time_seconds,
+                    end_seconds=safe_float(time_seconds, 0.0) + 1.0,
+                    fps=fps,
+                    confidence=confidence
                 )
+            )
 
     return detections
+
+
+def normalize_risk_flags(value):
+    value = clean_text(value).lower()
+    value = value.replace(" ", "")
+
+    if value in ["", "none", "no", "unknown"]:
+        return []
+
+    parts = [
+        part.strip()
+        for part in value.split(",")
+        if part.strip()
+    ]
+
+    return list(sorted(set(parts)))
 
 
 def build_llm_detections(pz7_data, fps, keyword_dict):
@@ -774,7 +669,8 @@ def build_llm_detections(pz7_data, fps, keyword_dict):
             row.get("text_or_symbols_visible", ""),
             row.get("visual_context_ru", ""),
             row.get("possible_risk_flags", ""),
-            row.get("moderation_comment_ru", "")
+            row.get("moderation_comment_ru", ""),
+            row.get("yolo_class_hint", "")
         ]
 
         full_text = " ".join([
@@ -783,22 +679,31 @@ def build_llm_detections(pz7_data, fps, keyword_dict):
             if field
         ])
 
-        add_keyword_detections_from_text(
-            detections=detections,
-            text=full_text,
-            start_seconds=time_seconds,
-            end_seconds=safe_float(time_seconds, 0.0) + 1.0,
-            fps=fps,
-            detection_type="video",
-            base_confidence=0.9,
-            keyword_dict=keyword_dict
-        )
+        subclasses = normalize_risk_flags(row.get("possible_risk_flags", ""))
+
+        if not subclasses:
+            subclasses = detect_categories(full_text, keyword_dict)
+
+        for subclass in subclasses:
+            if subclass == "none":
+                continue
+
+            detections.append(
+                make_detection(
+                    subclass=subclass,
+                    detection_type="video",
+                    start_seconds=time_seconds,
+                    end_seconds=safe_float(time_seconds, 0.0) + 1.0,
+                    fps=fps,
+                    confidence=0.9
+                )
+            )
 
     return detections
 
 
 # =====================================================
-# ФИЛЬТРАЦИЯ И СКЛЕЙКА DETECTIONS
+# ФИЛЬТРАЦИЯ И СКЛЕЙКА
 # =====================================================
 
 def filter_low_confidence_detections(detections):
@@ -842,7 +747,10 @@ def merge_time_based_detections(detections, fps, max_gap_seconds=3.0):
         same_class = det.get("subclass") == current.get("subclass")
         same_type = det.get("type") == current.get("type")
 
-        gap_frames = safe_int(det.get("startFrame", 0), 0) - safe_int(current.get("endFrame", 0), 0)
+        gap_frames = (
+            safe_int(det.get("startFrame", 0), 0)
+            - safe_int(current.get("endFrame", 0), 0)
+        )
 
         if same_class and same_type and gap_frames <= max_gap_frames:
             current["endFrame"] = max(
@@ -894,18 +802,11 @@ def normalize_detection_times(detections, fps):
     return normalized
 
 
-def build_all_detections(
-    pz3_data,
-    pz4_data,
-    pz5_data,
-    pz6_data,
-    pz7_data,
-    fps,
-    keyword_dict
-):
+def build_all_detections(pz3_data, pz4_data, pz5_data, pz6_data, pz7_data, fps, keyword_dict):
     detections = []
 
-    detections.extend(build_text_detections(pz3_data, pz4_data, fps, keyword_dict))
+    detections.extend(build_ocr_detections(pz3_data, fps, keyword_dict))
+    detections.extend(build_audio_detections(pz4_data, fps, keyword_dict))
     detections.extend(build_yolo_detections(pz5_data, fps, keyword_dict))
     detections.extend(build_resnet_detections(pz6_data, fps, keyword_dict))
     detections.extend(build_llm_detections(pz7_data, fps, keyword_dict))
@@ -913,12 +814,15 @@ def build_all_detections(
     detections = filter_low_confidence_detections(detections)
 
     detections = merge_time_based_detections(
-        detections,
+        detections=detections,
         fps=fps,
         max_gap_seconds=3.0
     )
 
-    detections = normalize_detection_times(detections, fps)
+    detections = normalize_detection_times(
+        detections=detections,
+        fps=fps
+    )
 
     detections = sorted(
         detections,
@@ -933,56 +837,102 @@ def build_all_detections(
 
 
 # =====================================================
-# SOURCE INFO
+# SUMMARY И RECOMMENDATION
 # =====================================================
 
-def get_video_path_from_data(pz4_data, pz5_data):
-    audio_json = pz4_data.get("audio_json", {})
+def build_summary(detections):
+    detections_count = len(detections)
 
-    if audio_json.get("video_path"):
-        return audio_json.get("video_path")
+    subclass_counter = {}
+    type_counter = {}
 
-    yolo_json = pz5_data.get("yolo_json", {})
+    max_confidence = 0.0
 
-    if yolo_json.get("video_path"):
-        return yolo_json.get("video_path")
+    for det in detections:
+        subclass = det.get("subclass", "unknown")
+        detection_type = det.get("type", "unknown")
+        confidence = safe_float(det.get("confidence", 0.0), 0.0)
 
-    return ""
+        subclass_counter[subclass] = subclass_counter.get(subclass, 0) + 1
+        type_counter[detection_type] = type_counter.get(detection_type, 0) + 1
 
+        if confidence > max_confidence:
+            max_confidence = confidence
 
-def calculate_frame_count_fallback(pz5_data, detections):
-    yolo_frames = pz5_data.get("yolo_frames", [])
+    summary = {
+        "detections_count": detections_count,
+        "weapon_detections_count": subclass_counter.get("weapon", 0),
+        "violence_detections_count": subclass_counter.get("violence", 0),
+        "video_detections_count": type_counter.get("video", 0),
+        "audio_detections_count": type_counter.get("audio", 0),
+        "text_detections_count": type_counter.get("text", 0),
+        "max_confidence": round(max_confidence, 4),
+        "detections_by_subclass": subclass_counter,
+        "detections_by_type": type_counter
+    }
 
-    frame_numbers = []
-
-    for row in yolo_frames:
-        frame_number = row.get("frame_number", "")
-
-        if frame_number != "":
-            frame_numbers.append(safe_int(frame_number, 0))
-
-    if frame_numbers:
-        return max(frame_numbers) + 1
-
-    detection_frames = [
-        safe_int(row.get("endFrame", 0), 0)
-        for row in detections
-    ]
-
-    if detection_frames:
-        return max(detection_frames) + 1
-
-    return 0
+    return summary
 
 
-def build_source_info(pz4_data, pz5_data, detections, metadata):
-    video_path = get_video_path_from_data(pz4_data, pz5_data)
+def build_recommendation(summary, detections):
+    detections_count = summary.get("detections_count", 0)
+    weapon_count = summary.get("weapon_detections_count", 0)
+    violence_count = summary.get("violence_detections_count", 0)
+    max_confidence = summary.get("max_confidence", 0.0)
 
+    has_high_confidence_weapon = any(
+        det.get("subclass") == "weapon"
+        and safe_float(det.get("confidence", 0.0), 0.0) >= 0.80
+        for det in detections
+    )
+
+    has_high_confidence_violence = any(
+        det.get("subclass") == "violence"
+        and safe_float(det.get("confidence", 0.0), 0.0) >= 0.80
+        for det in detections
+    )
+
+    if detections_count == 0:
+        return {
+            "is_dangerous": False,
+            "risk_level": "low",
+            "decision": "no_risk_detected",
+            "comment": "По результатам автоматической проверки признаки потенциально опасного контента не обнаружены."
+        }
+
+    if (
+        detections_count >= 3
+        or weapon_count >= 2
+        or violence_count >= 2
+        or has_high_confidence_weapon
+        or has_high_confidence_violence
+        or max_confidence >= 0.90
+    ):
+        return {
+            "is_dangerous": True,
+            "risk_level": "high",
+            "decision": "manual_review_required",
+            "comment": "В видеоролике обнаружены признаки потенциально опасного контента. Рекомендуется ручная проверка."
+        }
+
+    return {
+        "is_dangerous": True,
+        "risk_level": "medium",
+        "decision": "manual_review_recommended",
+        "comment": "В видеоролике обнаружены отдельные риск-срабатывания. Рекомендуется дополнительная ручная проверка."
+    }
+
+
+# =====================================================
+# SOURCE_INFO И СОХРАНЕНИЕ
+# =====================================================
+
+def build_source_info(config, metadata, taxonomy):
     fps = safe_float(metadata.get("fps", DEFAULT_FPS), DEFAULT_FPS)
     frame_count = safe_int(metadata.get("frameCount", 0), 0)
 
     if frame_count <= 0:
-        frame_count = calculate_frame_count_fallback(pz5_data, detections)
+        frame_count = safe_int(config.get("frameCount", 0), 0)
 
     if fps <= 0:
         fps = DEFAULT_FPS
@@ -990,30 +940,33 @@ def build_source_info(pz4_data, pz5_data, detections, metadata):
     if frame_count > 0:
         duration_seconds = round(frame_count / fps, 3)
     else:
-        duration_seconds = 0.0
+        duration_seconds = safe_float(config.get("video_duration_seconds", 0.0), 0.0)
 
     source_info = {
         "frameCount": frame_count,
         "fps": fps,
-        "video_path": video_path,
+        "video_path": config.get("video_path", ""),
         "video_duration_seconds": duration_seconds,
         "video_duration_formatted": seconds_to_time(duration_seconds),
-        "analysis_timestamp": datetime.now().isoformat()
+        "analysis_timestamp": datetime.now().isoformat(),
+        "taxonomy_name": taxonomy.get("taxonomy_name", ""),
+        "taxonomy_version": taxonomy.get("taxonomy_version", "")
     }
 
     return source_info
 
 
-# =====================================================
-# СОХРАНЕНИЕ ФИНАЛЬНОГО JSON
-# =====================================================
+def save_final_json(final_dir, source_info, summary, recommendation, detections):
+    final_dir = Path(final_dir)
+    final_dir.mkdir(parents=True, exist_ok=True)
 
-def save_final_json(source_info, detections):
-    json_path = RUN_DIR / "final_analysis_report.json"
+    json_path = final_dir / "final_analysis_report.json"
 
     report = {
         "report_type": "TIME_BASED_REPORT",
         "source_info": source_info,
+        "summary": summary,
+        "recommendation": recommendation,
         "detections": detections
     }
 
@@ -1023,14 +976,21 @@ def save_final_json(source_info, detections):
     return json_path
 
 
-def save_excel_preview(source_info, detections):
-    excel_path = RUN_DIR / "final_analysis_preview.xlsx"
+def save_excel_preview(final_dir, source_info, summary, recommendation, detections):
+    final_dir = Path(final_dir)
+    final_dir.mkdir(parents=True, exist_ok=True)
+
+    excel_path = final_dir / "final_analysis_preview.xlsx"
 
     source_df = pd.DataFrame([source_info])
+    summary_df = pd.DataFrame([summary])
+    recommendation_df = pd.DataFrame([recommendation])
     detections_df = pd.DataFrame(detections)
 
     with pd.ExcelWriter(excel_path, engine="openpyxl") as writer:
         source_df.to_excel(writer, sheet_name="source_info", index=False)
+        summary_df.to_excel(writer, sheet_name="summary", index=False)
+        recommendation_df.to_excel(writer, sheet_name="recommendation", index=False)
         detections_df.to_excel(writer, sheet_name="detections", index=False)
 
     return excel_path
@@ -1042,14 +1002,16 @@ def save_excel_preview(source_info, detections):
 
 def main():
     print("=" * 70)
-    print("ПЗ8: финальный JSON в формате TIME_BASED_REPORT")
+    print("ПЗ8: постобработка и финальный JSON")
     print("=" * 70)
 
-    print("\nЭтот скрипт формирует один главный JSON:")
-    print("final_analysis_report.json")
-    print("\nФормат JSON:")
-    print("report_type + source_info + detections")
-    print(f"\nФильтр video-срабатываний: confidence >= {MIN_VIDEO_CONFIDENCE}")
+    try:
+        config = load_run_config()
+    except Exception as error:
+        print("\nНе удалось загрузить run_config.json.")
+        print("Сначала запусти main.py и выполни предыдущие этапы.")
+        print(error)
+        return
 
     taxonomy = load_risk_taxonomy()
     keyword_dict = build_keyword_dict(taxonomy)
@@ -1059,19 +1021,8 @@ def main():
     print(f"taxonomy_version: {taxonomy.get('taxonomy_version')}")
     print(f"categories: {list(keyword_dict.keys())}")
 
-    selected_runs = choose_all_runs()
-
-    print("\nЗагружаем результаты ПЗ3–ПЗ7...")
-
-    pz3_data = load_pz3_results(selected_runs.get("pz3_run"))
-    pz4_data = load_pz4_results(selected_runs.get("pz4_run"))
-    pz5_data = load_pz5_results(selected_runs.get("pz5_run"))
-    pz6_data = load_pz6_results(selected_runs.get("pz6_run"))
-    pz7_data = load_pz7_results(selected_runs.get("pz7_run"))
-
-    video_path = get_video_path_from_data(pz4_data, pz5_data)
+    video_path = config.get("video_path", "")
     metadata = get_video_metadata(video_path)
-
     fps = safe_float(metadata.get("fps", DEFAULT_FPS), DEFAULT_FPS)
 
     print("\nМетаданные видео:")
@@ -1080,7 +1031,22 @@ def main():
     print(f"frameCount: {metadata.get('frameCount')}")
     print(f"metadata_source: {metadata.get('metadata_source')}")
 
-    print("\nФормируем detections...")
+    print("\nЗагружаем результаты из current_run...")
+
+    pz3_data = load_pz3_results(config)
+    pz4_data = load_pz4_results(config)
+    pz5_data = load_pz5_results(config)
+    pz6_data = load_pz6_results(config)
+    pz7_data = load_pz7_results(config)
+
+    print("\nНайдено данных:")
+    print(f"OCR segments: {len(pz3_data.get('ocr_segments', []))}")
+    print(f"Whisper segments: {len(pz4_data.get('audio_segments', []))}")
+    print(f"YOLO objects: {len(pz5_data.get('yolo_objects', []))}")
+    print(f"ResNet top1 rows: {len(pz6_data.get('resnet_top1', []))}")
+    print(f"LLM results: {len(pz7_data.get('llm_results', []))}")
+
+    print("\nФормируем итоговые detections...")
 
     detections = build_all_detections(
         pz3_data=pz3_data,
@@ -1093,27 +1059,47 @@ def main():
     )
 
     source_info = build_source_info(
-        pz4_data=pz4_data,
-        pz5_data=pz5_data,
-        detections=detections,
-        metadata=metadata
+        config=config,
+        metadata=metadata,
+        taxonomy=taxonomy
     )
 
+    summary = build_summary(detections)
+    recommendation = build_recommendation(summary, detections)
+
+    final_dir = Path(config["final_dir"])
+
     json_path = save_final_json(
+        final_dir=final_dir,
         source_info=source_info,
+        summary=summary,
+        recommendation=recommendation,
         detections=detections
     )
 
     excel_path = save_excel_preview(
+        final_dir=final_dir,
         source_info=source_info,
+        summary=summary,
+        recommendation=recommendation,
         detections=detections
     )
+
+    config["final_json_path"] = str(json_path)
+    config["final_preview_excel_path"] = str(excel_path)
+    config["final_detections_count"] = summary.get("detections_count", 0)
+    config["final_risk_level"] = recommendation.get("risk_level", "")
+    config["final_is_dangerous"] = recommendation.get("is_dangerous", False)
+    config["final_decision"] = recommendation.get("decision", "")
+    config["pz8_status"] = "success"
+    config["pz8_finished_at"] = datetime.now().isoformat()
+
+    save_run_config(config)
 
     print("\n" + "=" * 70)
     print("ПЗ8 ГОТОВО")
     print("=" * 70)
 
-    print(f"Папка результата: {RUN_DIR}")
     print(f"Главный JSON: {json_path}")
     print(f"Excel для проверки: {excel_path}")
 
@@ -1121,7 +1107,12 @@ def main():
     print(f"frameCount: {source_info.get('frameCount')}")
     print(f"fps: {source_info.get('fps')}")
     print(f"video_duration_formatted: {source_info.get('video_duration_formatted')}")
-    print(f"detections: {len(detections)}")
+    print(f"detections_count: {summary.get('detections_count')}")
+    print(f"weapon_detections_count: {summary.get('weapon_detections_count')}")
+    print(f"violence_detections_count: {summary.get('violence_detections_count')}")
+    print(f"risk_level: {recommendation.get('risk_level')}")
+    print(f"decision: {recommendation.get('decision')}")
+    print(f"is_dangerous: {recommendation.get('is_dangerous')}")
 
     if detections:
         print("\nПервые detections:")
@@ -1129,7 +1120,6 @@ def main():
             print(item)
     else:
         print("\nРиск-срабатывания не найдены.")
-        print("Если на видео точно есть оружие, значит предыдущие модули не передали признаки в текст/YOLO/ResNet/LLM.")
 
 
 if __name__ == "__main__":

@@ -1,75 +1,55 @@
-import cv2
 import json
 import re
-import pandas as pd
-import numpy as np
-import torch
+import shutil
 from pathlib import Path
 from datetime import datetime
 
+import cv2
+import pandas as pd
+import torch
+
+from project_config import load_run_config, RUN_CONFIG_PATH
+
 
 # =====================================================
-# НАСТРОЙКА ПАПОК
+# НАСТРОЙКИ
 # =====================================================
+
+SUPPORTED_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".bmp", ".webp"]
+
+DEFAULT_CONFIDENCE_THRESHOLD = 0.25
 
 BASE_DIR = Path(__file__).resolve().parent
-
-# Кадры после ПЗ2
-FRAME_ROOT = BASE_DIR / "results" / "pz2_frames" / "FRAME_FOLDER"
-
-# Локальная папка с YOLOv5
-YOLOV5_REPO_DIR = BASE_DIR / "models" / "yolov5" / "yolov5-7.0"
-
-# Локальная папка с весами YOLOv5
-YOLOV5_WEIGHTS_DIR = BASE_DIR / "models" / "yolov5_weights"
-
-# Результаты ПЗ5
-RESULT_ROOT = BASE_DIR / "results" / "pz5_yolo"
-
-RUN_TIMESTAMP = datetime.now().strftime("%Y%m%d_%H%M%S")
-RUN_DIR = RESULT_ROOT / f"yolo_run_{RUN_TIMESTAMP}"
-
-ANNOTATED_FRAMES_DIR = RUN_DIR / "annotated_frames"
-OBJECT_CROPS_DIR = RUN_DIR / "object_crops"
-
-RESULT_ROOT.mkdir(parents=True, exist_ok=True)
-RUN_DIR.mkdir(parents=True, exist_ok=True)
-ANNOTATED_FRAMES_DIR.mkdir(parents=True, exist_ok=True)
-OBJECT_CROPS_DIR.mkdir(parents=True, exist_ok=True)
-
-SUPPORTED_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".bmp"]
+YOLO_REPO_DIR = BASE_DIR / "models" / "yolov5"
+YOLO_WEIGHTS_DIR = BASE_DIR / "models" / "yolov5_weights"
 
 
 # =====================================================
-# ЧТЕНИЕ И СОХРАНЕНИЕ ИЗОБРАЖЕНИЙ
+# ОБЩИЕ ФУНКЦИИ
 # =====================================================
 
-def read_image_correctly(image_path):
-    image_array = np.fromfile(str(image_path), dtype=np.uint8)
-    image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-    return image
+def save_run_config(config):
+    with open(RUN_CONFIG_PATH, "w", encoding="utf-8") as file:
+        json.dump(config, file, ensure_ascii=False, indent=4)
 
 
-def save_image_correctly(save_path, image):
-    extension = save_path.suffix
-    success, encoded_image = cv2.imencode(extension, image)
+def clear_folder(folder_path):
+    folder_path = Path(folder_path)
 
-    if success:
-        encoded_image.tofile(str(save_path))
-        return True
+    if folder_path.exists():
+        shutil.rmtree(folder_path)
 
-    return False
+    folder_path.mkdir(parents=True, exist_ok=True)
 
-
-# =====================================================
-# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-# =====================================================
 
 def seconds_to_time(seconds):
-    if seconds is None:
+    if seconds is None or seconds == "":
         return ""
 
-    seconds = int(seconds)
+    try:
+        seconds = int(float(seconds))
+    except Exception:
+        return ""
 
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
@@ -78,11 +58,29 @@ def seconds_to_time(seconds):
     return f"{hours:02d}:{minutes:02d}:{sec:02d}"
 
 
+def safe_float(value, default=0.0):
+    try:
+        if value == "":
+            return default
+        return float(value)
+    except Exception:
+        return default
+
+
+def safe_int(value, default=0):
+    try:
+        if value == "":
+            return default
+        return int(float(value))
+    except Exception:
+        return default
+
+
 def extract_time_from_filename(filename):
     match = re.search(r"time_(\d+)ms", filename)
 
     if not match:
-        return None, ""
+        return 0.0, "00:00:00"
 
     milliseconds = int(match.group(1))
     seconds = milliseconds / 1000
@@ -91,113 +89,49 @@ def extract_time_from_filename(filename):
 
 
 def extract_frame_number_from_filename(filename):
-    match = re.search(r"_frame_(\d+)", filename)
+    match = re.search(r"frame_(\d+)", filename)
 
     if not match:
-        return None
+        return 0
 
     return int(match.group(1))
 
 
-def ask_float(message, default_value):
-    user_input = input(message).strip()
+def extract_source_frame_number_from_filename(filename):
+    match = re.search(r"source_(\d+)", filename)
 
-    if user_input == "":
-        return default_value
+    if not match:
+        return 0
 
-    try:
-        return float(user_input.replace(",", "."))
-    except ValueError:
-        print("Введено некорректное значение. Используется значение по умолчанию.")
-        return default_value
+    return int(match.group(1))
 
 
-def ask_int(message, default_value):
-    user_input = input(message).strip()
+def get_frame_files(frames_dir):
+    frames_dir = Path(frames_dir)
 
-    if user_input == "":
-        return default_value
+    if not frames_dir.exists():
+        return []
 
-    try:
-        value = int(user_input)
-
-        if value <= 0:
-            print("Значение должно быть больше 0. Используется значение по умолчанию.")
-            return default_value
-
-        return value
-
-    except ValueError:
-        print("Введено некорректное значение. Используется значение по умолчанию.")
-        return default_value
-
-
-def safe_filename(text):
-    text = str(text)
-    text = re.sub(r"[^A-Za-zА-Яа-яЁё0-9_-]", "_", text)
-    return text
-
-
-# =====================================================
-# ВЫБОР ПАПКИ С КАДРАМИ
-# =====================================================
-
-def choose_frames_folder():
-    if not FRAME_ROOT.exists():
-        print("Папка с кадрами не найдена:")
-        print(FRAME_ROOT)
-        return None
-
-    frame_folders = [
-        folder for folder in sorted(FRAME_ROOT.iterdir())
-        if folder.is_dir()
+    files = [
+        file for file in frames_dir.iterdir()
+        if file.is_file() and file.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS
     ]
 
-    if not frame_folders:
-        print("В FRAME_FOLDER нет папок с кадрами.")
-        print(FRAME_ROOT)
-        return None
-
-    print("\nНайдены папки с кадрами:")
-
-    for index, folder in enumerate(frame_folders, start=1):
-        image_count = len([
-            file for file in folder.iterdir()
-            if file.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS
-        ])
-
-        print(f"{index}. {folder.name} — кадров: {image_count}")
-
-    choice = input("\nВведите номер папки с кадрами: ").strip()
-
-    try:
-        choice_number = int(choice)
-
-        if 1 <= choice_number <= len(frame_folders):
-            return frame_folders[choice_number - 1]
-
-        print("Неверный номер папки.")
-        return None
-
-    except ValueError:
-        print("Введено не число.")
-        return None
+    return sorted(files)
 
 
 # =====================================================
-# ВЫБОР МОДЕЛИ YOLO
+# ВЫБОР И ЗАГРУЗКА МОДЕЛИ YOLOv5
 # =====================================================
 
 def choose_yolo_model():
     print("\nВыберите модель YOLOv5:")
-    print("1 — yolov5s, быстрая и лёгкая")
-    print("2 — yolov5m, точнее, но медленнее")
-    print("3 — yolov5l, ещё точнее, но может работать долго")
+    print("1 — yolov5s, самая быстрая")
+    print("2 — yolov5m, средний вариант")
+    print("3 — yolov5l, более точная, но медленнее")
+    print("Enter — yolov5l")
 
-    choice = input("\nВведите 1, 2 или 3 (Enter = yolov5s): ").strip()
-
-    if choice == "":
-        return "yolov5s"
+    choice = input("\nВведите номер модели: ").strip()
 
     if choice == "1":
         return "yolov5s"
@@ -205,93 +139,108 @@ def choose_yolo_model():
     if choice == "2":
         return "yolov5m"
 
-    if choice == "3":
+    if choice == "3" or choice == "":
         return "yolov5l"
 
-    print("Неверный выбор. Используется yolov5s.")
-    return "yolov5s"
+    print("Неверный выбор. Используется yolov5l.")
+    return "yolov5l"
 
 
-def load_yolov5_model(model_name, confidence_threshold):
-    """
-    Загружает YOLOv5 локально, без скачивания с GitHub.
-    Используется YOLOv5 v7.0, не YOLOv8.
+def choose_confidence_threshold():
+    print("\nВведите минимальную уверенность YOLO.")
+    print("Например: 0.25, 0.30, 0.50")
+    print("Enter — 0.25")
 
-    Исправление:
-    новые версии PyTorch по умолчанию загружают веса в режиме weights_only=True,
-    а старый формат YOLOv5 требует weights_only=False.
-    """
+    user_input = input("\nconfidence threshold: ").strip()
 
-    print("\nЗагружаем модель YOLOv5 локально...")
-    print(f"Модель: {model_name}")
-
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"Устройство: {device}")
-
-    weights_path = YOLOV5_WEIGHTS_DIR / f"{model_name}.pt"
-
-    if not YOLOV5_REPO_DIR.exists():
-        print("\nПапка YOLOv5 не найдена:")
-        print(YOLOV5_REPO_DIR)
-        print("\nПроверь, что YOLOv5 v7.0 распакован сюда:")
-        print("models/yolov5/yolov5-7.0")
-        return None, None
-
-    if not (YOLOV5_REPO_DIR / "hubconf.py").exists():
-        print("\nВ папке YOLOv5 не найден hubconf.py:")
-        print(YOLOV5_REPO_DIR / "hubconf.py")
-        print("\nСкорее всего, архив YOLOv5 распакован не в ту папку.")
-        return None, None
-
-    if not weights_path.exists():
-        print("\nФайл весов YOLOv5 не найден:")
-        print(weights_path)
-        print(f"\nСкачай файл {model_name}.pt и положи его сюда:")
-        print(YOLOV5_WEIGHTS_DIR)
-        return None, None
-
-    original_torch_load = torch.load
-
-    def patched_torch_load(*args, **kwargs):
-        kwargs["weights_only"] = False
-        return original_torch_load(*args, **kwargs)
+    if user_input == "":
+        return DEFAULT_CONFIDENCE_THRESHOLD
 
     try:
-        torch.load = patched_torch_load
+        value = float(user_input.replace(",", "."))
+
+        if value < 0 or value > 1:
+            print("Значение должно быть от 0 до 1. Используется 0.25.")
+            return DEFAULT_CONFIDENCE_THRESHOLD
+
+        return value
+
+    except ValueError:
+        print("Некорректное значение. Используется 0.25.")
+        return DEFAULT_CONFIDENCE_THRESHOLD
+
+
+def get_weights_path(model_name):
+    weights_path = YOLO_WEIGHTS_DIR / f"{model_name}.pt"
+
+    if weights_path.exists():
+        return weights_path
+
+    return None
+
+
+def load_yolo_model(model_name, confidence_threshold):
+    """
+    Загружает YOLOv5.
+
+    Приоритет:
+    1. локальный репозиторий models/yolov5 + локальные веса;
+    2. если локальных весов нет, PyTorch Hub сам попробует скачать модель.
+    """
+
+    print("\nЗагружается YOLOv5...")
+    print(f"Модель: {model_name}")
+    print(f"confidence threshold: {confidence_threshold}")
+
+    weights_path = get_weights_path(model_name)
+
+    if YOLO_REPO_DIR.exists() and weights_path is not None:
+        print("\nИспользуется локальный репозиторий YOLOv5 и локальные веса:")
+        print(YOLO_REPO_DIR)
+        print(weights_path)
 
         model = torch.hub.load(
-            str(YOLOV5_REPO_DIR),
+            str(YOLO_REPO_DIR),
             "custom",
             path=str(weights_path),
-            source="local",
-            trust_repo=True
+            source="local"
+        )
+    else:
+        print("\nЛокальные веса не найдены. Пробуем загрузить модель через torch.hub.")
+        print("Если интернета нет, скачивание может не сработать.")
+
+        model = torch.hub.load(
+            "ultralytics/yolov5",
+            model_name,
+            pretrained=True
         )
 
-    except Exception as error:
-        print("\nНе удалось загрузить YOLOv5 локально.")
-        print("Текст ошибки:")
-        print(error)
-        print("\nЕсли ошибка связана с зависимостями, выполни:")
-        print(f'python -m pip install -r "{YOLOV5_REPO_DIR / "requirements.txt"}"')
-        return None, None
-
-    finally:
-        torch.load = original_torch_load
-
-    model.to(device)
     model.conf = confidence_threshold
-    model.iou = 0.45
 
-    print("YOLOv5 успешно загружена локально.")
-
-    return model, device
+    return model
 
 
 # =====================================================
-# ОБРАБОТКА КАДРОВ YOLO
+# ДЕТЕКЦИЯ И СОХРАНЕНИЕ
 # =====================================================
 
-def draw_detection(image, class_name, confidence, x1, y1, x2, y2):
+def crop_object(image, x1, y1, x2, y2):
+    height, width = image.shape[:2]
+
+    x1 = max(0, min(int(x1), width - 1))
+    y1 = max(0, min(int(y1), height - 1))
+    x2 = max(0, min(int(x2), width))
+    y2 = max(0, min(int(y2), height))
+
+    if x2 <= x1 or y2 <= y1:
+        return None
+
+    return image[y1:y2, x1:x2]
+
+
+def draw_detection(image, x1, y1, x2, y2, label, confidence):
+    x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+
     cv2.rectangle(
         image,
         (x1, y1),
@@ -300,275 +249,286 @@ def draw_detection(image, class_name, confidence, x1, y1, x2, y2):
         2
     )
 
-    label = f"{class_name} {confidence:.2f}"
+    text = f"{label} {confidence:.2f}"
 
     cv2.putText(
         image,
-        label,
-        (x1, max(y1 - 10, 20)),
+        text,
+        (x1, max(20, y1 - 10)),
         cv2.FONT_HERSHEY_SIMPLEX,
-        0.7,
+        0.6,
         (0, 255, 0),
         2
     )
 
-    return image
 
+def process_frames_with_yolo(model, frames_dir, yolo_dir, object_crops_dir):
+    frames_dir = Path(frames_dir)
+    yolo_dir = Path(yolo_dir)
+    object_crops_dir = Path(object_crops_dir)
 
-def process_frames_with_yolo(frames_folder, model, frame_step):
-    image_files = [
-        file for file in sorted(frames_folder.iterdir())
-        if file.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS
-    ]
+    annotated_frames_dir = yolo_dir / "annotated_frames"
 
-    if not image_files:
-        print("В выбранной папке нет изображений.")
-        return [], []
+    clear_folder(yolo_dir)
+    object_crops_dir.mkdir(parents=True, exist_ok=True)
+    annotated_frames_dir.mkdir(parents=True, exist_ok=True)
 
-    selected_files = image_files[::frame_step]
+    frame_files = get_frame_files(frames_dir)
 
-    print(f"\nВсего кадров в папке: {len(image_files)}")
-    print(f"Будет обработано кадров: {len(selected_files)}")
-    print(f"Шаг обработки: каждый {frame_step}-й кадр")
+    if not frame_files:
+        print("\nКадры не найдены:")
+        print(frames_dir)
+        return [], [], []
 
-    detection_rows = []
-    frame_summary_rows = []
+    print(f"\nНайдено кадров для YOLO: {len(frame_files)}")
 
-    for index, frame_path in enumerate(selected_files, start=1):
-        print(f"Обработка кадра {index}/{len(selected_files)}: {frame_path.name}")
+    object_rows = []
+    frame_rows = []
+    class_counter = {}
 
-        frame = read_image_correctly(frame_path)
+    crop_global_index = 0
 
-        if frame is None:
-            print("Не удалось прочитать кадр.")
+    for frame_index, frame_path in enumerate(frame_files, start=1):
+        print(f"YOLO {frame_index}/{len(frame_files)}: {frame_path.name}")
+
+        image = cv2.imread(str(frame_path))
+
+        if image is None:
             continue
 
-        frame_number = extract_frame_number_from_filename(frame_path.name)
+        original_image = image.copy()
+
         time_seconds, time_formatted = extract_time_from_filename(frame_path.name)
+        frame_number = extract_frame_number_from_filename(frame_path.name)
+        source_frame_number = extract_source_frame_number_from_filename(frame_path.name)
 
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-        try:
-            results = model(frame_rgb, size=640)
-        except Exception as error:
-            print("Ошибка при обработке кадра YOLO:")
-            print(error)
-            continue
-
+        results = model(str(frame_path))
         detections_df = results.pandas().xyxy[0]
 
-        annotated_frame = frame.copy()
-        detections_count = len(detections_df)
+        detections_count = 0
 
-        annotated_path = ""
-        classes_on_frame = []
+        for _, detection in detections_df.iterrows():
+            x1 = float(detection["xmin"])
+            y1 = float(detection["ymin"])
+            x2 = float(detection["xmax"])
+            y2 = float(detection["ymax"])
+            confidence = float(detection["confidence"])
+            class_id = int(detection["class"])
+            class_name = str(detection["name"])
 
-        if detections_count > 0:
-            for detection_index, row in detections_df.iterrows():
-                x1 = int(max(0, round(float(row["xmin"]))))
-                y1 = int(max(0, round(float(row["ymin"]))))
-                x2 = int(min(frame.shape[1], round(float(row["xmax"]))))
-                y2 = int(min(frame.shape[0], round(float(row["ymax"]))))
+            crop = crop_object(
+                original_image,
+                x1,
+                y1,
+                x2,
+                y2
+            )
 
-                confidence = round(float(row["confidence"]), 4)
-                class_id = int(row["class"])
-                class_name = str(row["name"])
+            crop_path = ""
 
-                classes_on_frame.append(class_name)
+            if crop is not None:
+                crop_global_index += 1
 
-                annotated_frame = draw_detection(
-                    annotated_frame,
-                    class_name,
-                    confidence,
-                    x1,
-                    y1,
-                    x2,
-                    y2
+                crop_filename = (
+                    f"object_{crop_global_index:06d}"
+                    f"_frame_{frame_number:06d}"
+                    f"_source_{source_frame_number:06d}"
+                    f"_time_{int(time_seconds * 1000):08d}ms"
+                    f"_{class_name}.jpg"
                 )
 
-                crop_path = ""
+                crop_path = object_crops_dir / crop_filename
+                cv2.imwrite(str(crop_path), crop)
 
-                if x2 > x1 and y2 > y1:
-                    crop = frame[y1:y2, x1:x2]
+            draw_detection(
+                image,
+                x1,
+                y1,
+                x2,
+                y2,
+                class_name,
+                confidence
+            )
 
-                    crop_filename = (
-                        f"{frame_path.stem}_object_{detection_index:03d}"
-                        f"_{safe_filename(class_name)}.jpg"
-                    )
+            object_rows.append({
+                "object_id": crop_global_index,
+                "frame_file": frame_path.name,
+                "frame_path": str(frame_path),
+                "frame_number": frame_number,
+                "source_frame_number": source_frame_number,
+                "time_seconds": time_seconds,
+                "time_formatted": time_formatted,
+                "class_id": class_id,
+                "class_name": class_name,
+                "confidence": round(confidence, 4),
+                "x1": round(x1, 2),
+                "y1": round(y1, 2),
+                "x2": round(x2, 2),
+                "y2": round(y2, 2),
+                "crop_path": str(crop_path) if crop_path else ""
+            })
 
-                    crop_path_obj = OBJECT_CROPS_DIR / crop_filename
-                    save_image_correctly(crop_path_obj, crop)
-                    crop_path = str(crop_path_obj)
+            class_counter[class_name] = class_counter.get(class_name, 0) + 1
+            detections_count += 1
 
-                detection_rows.append({
-                    "frame_file": frame_path.name,
-                    "frame_path": str(frame_path),
-                    "frame_number": frame_number,
-                    "time_seconds": time_seconds,
-                    "time_formatted": time_formatted,
-                    "class_id": class_id,
-                    "class_name": class_name,
-                    "confidence": confidence,
-                    "xmin": x1,
-                    "ymin": y1,
-                    "xmax": x2,
-                    "ymax": y2,
-                    "crop_path": crop_path
-                })
+        annotated_frame_path = annotated_frames_dir / frame_path.name
+        cv2.imwrite(str(annotated_frame_path), image)
 
-            annotated_path_obj = ANNOTATED_FRAMES_DIR / f"{frame_path.stem}_yolo.jpg"
-            save_image_correctly(annotated_path_obj, annotated_frame)
-            annotated_path = str(annotated_path_obj)
-
-        unique_classes = sorted(list(set(classes_on_frame)))
-
-        frame_summary_rows.append({
+        frame_rows.append({
             "frame_file": frame_path.name,
             "frame_path": str(frame_path),
+            "annotated_frame_path": str(annotated_frame_path),
             "frame_number": frame_number,
+            "source_frame_number": source_frame_number,
             "time_seconds": time_seconds,
             "time_formatted": time_formatted,
-            "detections_count": detections_count,
-            "classes_on_frame": ", ".join(unique_classes),
-            "annotated_frame_path": annotated_path
+            "detections_count": detections_count
         })
 
-    return detection_rows, frame_summary_rows
+    class_summary_rows = []
+
+    for class_name, count in sorted(class_counter.items()):
+        class_summary_rows.append({
+            "class_name": class_name,
+            "detections_count": count
+        })
+
+    return object_rows, frame_rows, class_summary_rows
 
 
-# =====================================================
-# СОХРАНЕНИЕ РЕЗУЛЬТАТОВ
-# =====================================================
+def save_yolo_results(yolo_dir, object_rows, frame_rows, class_summary_rows, model_name, confidence_threshold):
+    yolo_dir = Path(yolo_dir)
+    yolo_dir.mkdir(parents=True, exist_ok=True)
 
-def build_class_summary(detection_rows):
-    if not detection_rows:
-        return []
+    excel_path = yolo_dir / "yolo_detection_results.xlsx"
+    json_path = yolo_dir / "yolo_detection_report.json"
 
-    df = pd.DataFrame(detection_rows)
-
-    summary_df = (
-        df.groupby("class_name")
-        .agg(
-            detections_count=("class_name", "count"),
-            max_confidence=("confidence", "max"),
-            mean_confidence=("confidence", "mean")
-        )
-        .reset_index()
-        .sort_values("detections_count", ascending=False)
-    )
-
-    summary_df["mean_confidence"] = summary_df["mean_confidence"].round(4)
-
-    return summary_df.to_dict(orient="records")
-
-
-def save_results(frames_folder, model_name, confidence_threshold, frame_step, detection_rows, frame_summary_rows):
-    class_summary_rows = build_class_summary(detection_rows)
-
-    excel_path = RUN_DIR / "yolo_detection_results.xlsx"
-    json_path = RUN_DIR / "yolo_detection_report.json"
-
-    detections_df = pd.DataFrame(detection_rows)
-    frames_df = pd.DataFrame(frame_summary_rows)
-    classes_df = pd.DataFrame(class_summary_rows)
+    objects_df = pd.DataFrame(object_rows)
+    frames_df = pd.DataFrame(frame_rows)
+    class_summary_df = pd.DataFrame(class_summary_rows)
 
     with pd.ExcelWriter(excel_path, engine="openpyxl") as writer:
-        detections_df.to_excel(writer, sheet_name="objects", index=False)
+        objects_df.to_excel(writer, sheet_name="objects", index=False)
         frames_df.to_excel(writer, sheet_name="frames", index=False)
-        classes_df.to_excel(writer, sheet_name="class_summary", index=False)
+        class_summary_df.to_excel(writer, sheet_name="class_summary", index=False)
 
-    frames_with_detections = sum(
-        1 for row in frame_summary_rows
-        if row.get("detections_count", 0) > 0
-    )
-
-    json_report = {
-        "report_type": "YOLOV5_OBJECT_DETECTION_REPORT",
-        "model_type": "YOLOv5",
-        "model_version": "v7.0",
+    report = {
+        "report_type": "YOLO_OBJECT_DETECTION",
         "model_name": model_name,
-        "loading_mode": "local",
-        "frames_folder": str(frames_folder),
         "confidence_threshold": confidence_threshold,
-        "frame_step": frame_step,
-        "processed_frames_count": len(frame_summary_rows),
-        "frames_with_detections": frames_with_detections,
-        "detections_count": len(detection_rows),
-        "class_summary": class_summary_rows,
-        "detections": detection_rows,
-        "frames": frame_summary_rows,
+        "objects_count": len(object_rows),
+        "processed_frames_count": len(frame_rows),
+        "classes_count": len(class_summary_rows),
+        "excel_path": str(excel_path),
         "analysis_timestamp": datetime.now().isoformat()
     }
 
     with open(json_path, "w", encoding="utf-8") as file:
-        json.dump(json_report, file, ensure_ascii=False, indent=4, default=str)
+        json.dump(report, file, ensure_ascii=False, indent=4)
 
-    print("\nГотово.")
-    print(f"Папка результатов ПЗ5: {RUN_DIR}")
-    print(f"Excel-таблица: {excel_path}")
-    print(f"JSON-отчёт: {json_path}")
-    print(f"Кадры с рамками: {ANNOTATED_FRAMES_DIR}")
-    print(f"Вырезанные объекты: {OBJECT_CROPS_DIR}")
-
-    print("\nСтатистика:")
-    print(f"Обработано кадров: {len(frame_summary_rows)}")
-    print(f"Кадров с объектами: {frames_with_detections}")
-    print(f"Всего найдено объектов: {len(detection_rows)}")
+    return {
+        "excel_path": excel_path,
+        "json_path": json_path
+    }
 
 
 # =====================================================
-# ОСНОВНАЯ ПРОГРАММА
+# MAIN
 # =====================================================
 
 def main():
     print("=" * 70)
-    print("ПЗ5: распознавание объектов на кадрах с помощью YOLOv5")
+    print("ПЗ5: детектирование объектов YOLOv5")
     print("=" * 70)
 
-    print("\nВажно: используется YOLOv5 v7.0, загруженная локально.")
-    print("YOLOv8 в этом задании не используется.")
-
-    frames_folder = choose_frames_folder()
-
-    if frames_folder is None:
+    try:
+        config = load_run_config()
+    except Exception as error:
+        print("\nНе удалось загрузить run_config.json.")
+        print("Сначала запусти main.py и выполни ПЗ2.")
+        print(error)
         return
+
+    frames_dir = Path(config["frames_dir"])
+    yolo_dir = Path(config["yolo_dir"])
+    object_crops_dir = Path(config["object_crops_dir"])
+
+    if not frames_dir.exists():
+        print("\nПапка кадров не найдена:")
+        print(frames_dir)
+        return
+
+    frame_files = get_frame_files(frames_dir)
+
+    if not frame_files:
+        print("\nВ папке кадров нет изображений:")
+        print(frames_dir)
+        return
+
+    print("\nКадры берутся из папки:")
+    print(frames_dir)
+
+    print("\nРезультаты YOLO будут сохранены в папку:")
+    print(yolo_dir)
 
     model_name = choose_yolo_model()
+    confidence_threshold = choose_confidence_threshold()
 
-    confidence_threshold = ask_float(
-        "\nВведите порог уверенности YOLO "
-        "(например 0.25, 0.35, 0.5; Enter = 0.35): ",
-        0.35
-    )
+    try:
+        model = load_yolo_model(
+            model_name=model_name,
+            confidence_threshold=confidence_threshold
+        )
 
-    frame_step = ask_int(
-        "\nВведите шаг обработки кадров "
-        "(1 — каждый кадр, 2 — каждый второй, 5 — каждый пятый; Enter = 1): ",
-        1
-    )
+        object_rows, frame_rows, class_summary_rows = process_frames_with_yolo(
+            model=model,
+            frames_dir=frames_dir,
+            yolo_dir=yolo_dir,
+            object_crops_dir=object_crops_dir
+        )
 
-    model, device = load_yolov5_model(
-        model_name,
-        confidence_threshold
-    )
+        saved_paths = save_yolo_results(
+            yolo_dir=yolo_dir,
+            object_rows=object_rows,
+            frame_rows=frame_rows,
+            class_summary_rows=class_summary_rows,
+            model_name=model_name,
+            confidence_threshold=confidence_threshold
+        )
 
-    if model is None:
+    except Exception as error:
+        print("\nОшибка при выполнении ПЗ5:")
+        print(error)
+
+        config["pz5_status"] = "error"
+        config["pz5_error"] = str(error)
+        config["pz5_finished_at"] = datetime.now().isoformat()
+        save_run_config(config)
+
         return
 
-    detection_rows, frame_summary_rows = process_frames_with_yolo(
-        frames_folder,
-        model,
-        frame_step
-    )
+    config["yolo_dir"] = str(yolo_dir)
+    config["object_crops_dir"] = str(object_crops_dir)
+    config["yolo_model"] = model_name
+    config["yolo_confidence_threshold"] = confidence_threshold
+    config["yolo_results_path"] = str(saved_paths["excel_path"])
+    config["yolo_report_path"] = str(saved_paths["json_path"])
+    config["yolo_objects_count"] = len(object_rows)
+    config["yolo_processed_frames_count"] = len(frame_rows)
+    config["yolo_classes_count"] = len(class_summary_rows)
+    config["pz5_status"] = "success"
+    config["pz5_finished_at"] = datetime.now().isoformat()
 
-    save_results(
-        frames_folder,
-        model_name,
-        confidence_threshold,
-        frame_step,
-        detection_rows,
-        frame_summary_rows
-    )
+    save_run_config(config)
+
+    print("\nПЗ5 завершено успешно.")
+    print(f"Обработано кадров: {len(frame_rows)}")
+    print(f"Найдено объектов: {len(object_rows)}")
+    print(f"Количество классов: {len(class_summary_rows)}")
+    print(f"Excel: {saved_paths['excel_path']}")
+    print(f"JSON: {saved_paths['json_path']}")
+    print(f"Вырезанные объекты: {object_crops_dir}")
+    print("\nrun_config.json обновлён.")
 
 
 if __name__ == "__main__":
